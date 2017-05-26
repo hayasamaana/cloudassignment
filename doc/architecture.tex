@@ -89,7 +89,7 @@ n_{\text{vm}} > \frac{T_{\text{conv}}  n_{\text{queue}}}{T_{\text{max}}}
 This is of course a simple approach which, if needed, could be extended to also consider videos of varying sizes and possibly reordering the queue such that for example small sized videos are prioritized over larger ones.
 
 \subsection{Oversubscription}
-Due to oversubscription, the provided cloud environment does not guarantee that adding one VM will lead to an overall increase in performance, nor that all VMs will have the same performance over time. Assuming conversion rate in Mb/s, \emph{i.e.} an entity inverse proportional to the time needed to process a video, depends on the number of active VMs in a way similar to Figure~\ref{fig:vmvstime}, it should be possible to optimize the number of VMs, to avoid wasting resources.
+Due to oversubscription, the provided cloud environment does not guarantee that adding one VM will lead to an overall increase in performance, nor that all VMs will have the same performance over time. Assuming conversion rate in Mb/s, \emph{i.e.} an entity inverse proportional to the time needed to process a video, depends on the number of active VMs in a way similar to Figure~\ref{fig:vmvsMbs}, it should be possible to optimize the number of VMs, to avoid wasting resources.
 \begin{figure}
 	\label{fig:vmvsMbs}
 	\centering
