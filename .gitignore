@@ -1,0 +1,15 @@
+*.aux
+*.auxlock
+*.bbl
+*.blg
+*.dvi
+*.log
+*.out
+*.pdf
+*.ps
+*.synctex.gz
+*.toc
+*~
+/.auctex/
+/.autofigs/
+/auto/

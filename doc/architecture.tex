@@ -1,0 +1,92 @@
+\documentclass[a4paper, 10pt, english]{article}
+%\documentclass[a4paper, 10pt, swedish]{article}
+
+\usepackage[T1]{fontenc}        % Allow for åäö
+\usepackage{lmodern}            % Better font for åäö
+\usepackage[utf8]{inputenc}     % For åäö in text
+
+
+\usepackage{babel}              % Language specifics
+                                % + hyphenation
+
+\usepackage{subfigure}
+\usepackage{amsmath, amssymb}   % Math stuff
+\usepackage{gensymb}
+
+\usepackage{graphicx}           % For including graphics
+\usepackage{epstopdf}
+\bibliographystyle{plain}       % References
+%\bibliographystyle{sweplain}    % Swedish references
+
+\usepackage{textcomp} 
+
+\usepackage[margin=1in]{geometry}
+
+
+\usepackage[colorinlistoftodos]{todonotes}					% Todo notes
+
+\usepackage{tikz,pgfplots} 
+\pgfplotsset{compat=newest} 
+\pgfplotsset{plot coordinates/math parser=false} 
+
+\usepackage{fancyvrb}
+
+\newcommand{\transp}{^\mathsf{T}}
+\newlength\figureheight 
+\newlength\figurewidth 
+
+
+\title{WASP SECC Course: Cloud Module Assignment\\Architecture}
+\author{Per Boström, Kristoffer Bergman}
+\date{May, 2017}
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+Load balancer (both frontend and backend?), frontend, message queue, video conversion
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{figs/workflow.pdf}
+\end{figure}
+
+``Nodes'' related to the service:
+\begin{itemize}
+\item Load balancer
+\item Frontend Web API
+\item Message queue
+\item Backend Video conversion
+\item Video Storage
+\item Controller
+\item Monitor
+\item Workload generator
+
+\end{itemize}
+
+We will use a workload generator to simulate a number of users that submit video conversion requests
+
+\section{Workload generator}
+The workload generator is the test engine that simulates external users. It takes two parameters: the number of client converters and the average time between conversion requests. It will start the specified number of client threads of which each one represents a user. Each client randomly selects a video, sends a conversion request, waits for the completion, and then sleeps for a while (on average the specified time) before repeating the process.
+
+The workload generator will also measure values such as response time and keep track of how many requests there are in the queue.
+\section{Controller}
+In order to make the service scalable, we must be able to scale up or down depending on its load. For this, we need a controller that controls the number of virtual machines used in the service.
+
+We will use the simplifying assumption that all videos are of approximately the same size. This makes it possible to use the time from that a video conversion request is submitted until the video is converted as the control objective. Assume the average time it takes for one core to convert one video is given (including potential delays in the system), and denote it $ T_{\text{conv}} $. With $ n_{\text{queue}} $ video conversion requests in queue and $ n_{\text{vm}} $ active VMs, the time $ T $ needed to convert all videos in the queue is given by
+\begin{equation}
+T = \frac{T_{\text{conv}}  n_{\text{queue}}}{n_{\text{vm}}}
+\end{equation}
+Thus, if the control objective is to keep the maximum time from a request is submitted until the video is converted below $ T_{\text{max}} $, the number of VMs neeeded is given by
+\begin{equation}
+n_{\text{vm}} > \frac{T_{\text{conv}}  n_{\text{queue}}}{T_{\text{max}}}
+\end{equation}
+
+This is of course a simple approach which, if needed, could be extended to also consider videos of varying sizes and possibly reordering the queue such that for example small sized videos are prioritized over larger ones.
+
+\subsection{Oversubscription}
+Due to oversubscription, the provided cloud environment does not guarantee that adding one VM will lead to an overall increase in performance, nor that all VMs will have the same performance over time. Assuming that the time $ T $ needed to process a video depends on the number of active VMs in a way similar to Figure~\ref{fig:vmvstime}, it should be possible to optimize the number of VMs.
+
+\end{document}
