@@ -49,8 +49,10 @@
 Load balancer (both frontend and backend?), frontend, message queue, video conversion
 
 \begin{figure}
-\centering
-\includegraphics[width=1\textwidth]{figs/workflow.pdf}
+	\label{fig:architecture}
+	\centering
+	\includegraphics[width=1\textwidth]{figs/workflow.pdf}
+	\caption{Overview of the architecture.}
 \end{figure}
 
 ``Nodes'' related to the service:
@@ -79,7 +81,7 @@ We will use the simplifying assumption that all videos are of approximately the 
 \begin{equation}
 T = \frac{T_{\text{conv}}  n_{\text{queue}}}{n_{\text{vm}}}
 \end{equation}
-Thus, if the control objective is to keep the maximum time from a request is submitted until the video is converted below $ T_{\text{max}} $, the number of VMs neeeded is given by
+Thus, if the control objective is to keep the maximum time from a request is submitted until the video is converted below $ T_{\text{max}} $, the number of VMs needed is given by
 \begin{equation}
 n_{\text{vm}} > \frac{T_{\text{conv}}  n_{\text{queue}}}{T_{\text{max}}}
 \end{equation}
