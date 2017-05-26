@@ -46,35 +46,31 @@
 
 \section{Overview}
 
-Load balancer (both frontend and backend?), frontend, message queue, video conversion
-
 \begin{figure}
 	\label{fig:architecture}
 	\centering
 	\includegraphics[width=1\textwidth]{figs/workflow.pdf}
 	\caption{Overview of the architecture.}
 \end{figure}
-
-``Nodes'' related to the service:
+An overview of the proposed architecture can be found in Figure~\ref{fig:architecture}. The different components involved are:
 \begin{itemize}
-\item Load balancer
-\item Frontend Web API
-\item Message queue
-\item Backend Video conversion
-\item Video Storage
-\item Controller
-\item Monitor
-\item Workload generator
-
+	\item \textbf{Workload generator}: Will be used as a test engine to simulate external users. See Section~\ref{sec:WG} for more details.
+	\item \textbf{Load balancer}: Will be used to distribute the workload across the multiple instances of the frontend Web API. It will also be used for the backend Video conversion, but we are currently not completely sure on how to use this component. 
+	\item \textbf{Frontend Web API}: Will be used to receive requests from users and deliver a response. We have simplified the architecture so that we only acknowledge the user when the conversion is completed.  
+	\item \textbf{Message queue}: Will be used to route the requests to the available Video conversion nodes and maintain the request queue. 
+	\item \textbf{Backend Video conversion}: Will be used to do the actual conversion of videos by reading the video from the storage.
+	\item \textbf{Video Storage}: To simplify the assignment, we will use a storage node that contains all the available videos for conversion.  
+	\item \textbf{Monitor}: Will be used to monitor entities relevant for the controller, by periodically gather information. It will also save this information in .mat files, which can then be used to plot the data in Matlab. 
+	\item \textbf{Controller}: Will be used to make the service scalable. See Section~\ref{sec:Controller} for more details.
+	
 \end{itemize}
 
-We will use a workload generator to simulate a number of users that submit video conversion requests
 
-\section{Workload generator}
+\section{Workload generator} \label{sec:WG}
 The workload generator is the test engine that simulates external users. It takes two parameters: the number of client converters and the average time between conversion requests. It will start the specified number of client threads of which each one represents a user. Each client randomly selects a video, sends a conversion request, waits for the completion, and then sleeps for a while (on average the specified time) before repeating the process.
 
 The workload generator will also measure values such as response time and keep track of how many requests there are in the queue.
-\section{Controller}
+\section{Controller} \label{sec:Controller}
 In order to make the service scalable, we must be able to scale up or down depending on its load. For this, we need a controller that controls the number of virtual machines used in the service.
 
 We will use the simplifying assumption that all videos are of approximately the same size. This makes it possible to use the time from that a video conversion request is submitted until the video is converted as the control objective. Assume the average time it takes for one core to convert one video is given (including potential delays in the system), and denote it $ T_{\text{conv}} $. With $ n_{\text{queue}} $ video conversion requests in queue and $ n_{\text{vm}} $ active VMs, the time $ T $ needed to convert all videos in the queue is given by
