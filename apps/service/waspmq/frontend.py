@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import ConfigParser
+import configparser as ConfigParser
 from optparse import OptionParser
 import uuid
 import time

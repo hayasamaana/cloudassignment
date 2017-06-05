@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import ConfigParser
+import configparser as ConfigParser
 from optparse import OptionParser
 
 import pika
@@ -9,7 +9,7 @@ def callback(ch, method, props, body):
     body = body.decode('utf-8')
 
     result = 'unknown message type' # default = fail
-    if body.startswith("convertVideo::"):
+    if body.startswith("videoconvert::"):
       arg = body.split("::", 1)[1]
       if arg < 11:
         print(" [x]   - converting video '{}'".format(arg))
