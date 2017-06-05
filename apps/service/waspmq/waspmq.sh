@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# set hostname 
+# set hostname
 sudo echo waspmq > /etc/hostname
 sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 waspmq/g" /etc/hosts
 
 # Install some packages
 sudo apt-get -y update
-sudo apt-get install -y python-dev
-sudo apt-get install -y python-pip
+sudo apt-get install -y python3-dev
+sudo apt-get install -y python3-pip
 
 
 #Install Erlang (the RabbitMQ runtime)--download and add Erlang to APT repository
@@ -29,18 +29,17 @@ sudo dpkg -i rabbitmq-server_3.6.9-1_all.deb
 sudo update-rc.d rabbitmq-server enable
 
 
-#Start  the RabbitMQ service 
+#Start  the RabbitMQ service
 sudo service rabbitmq-server start
 
 #To stop the service use the command
 # sudo service rabbitmq-server stop
 
-# Install python pika 
-sudo apt-get install -y python-pika
+# Install python pika
+#sudo apt-get install -y python-pika
+sudo pip3 install pika
 
 # create users and set privileges to enable remote connection
 rabbitmqctl add_user test test
 rabbitmqctl set_user_tags test administrator
 rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
-
-
