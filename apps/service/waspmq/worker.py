@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import configparser as ConfigParser
+import ConfigParser
 from optparse import OptionParser
 
 import pika

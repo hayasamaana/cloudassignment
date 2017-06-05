@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import configparser as ConfigParser
+import ConfigParser
 from optparse import OptionParser
 import uuid
 import time
@@ -7,9 +7,8 @@ import time
 from flask import Flask, g, jsonify
 import pika
 
-from statsd import StatsClient
+#from statsd import StatsClient
 
-from videodb import videodb
 
 MODE_PERSISTENT_MSGS = 2
 TIMEOUT_SECONDS = 3600
@@ -102,9 +101,9 @@ def videosend(video_id):
       return r
     else:
       resp = None
-      statsd = StatsClient('127.0.0.1', 8125)
-      with statsd.timer('frontend_convert.{}'.format(video_id)):
-        resp = rabbitmq().send_to_queue("videoconvert::{}".format(video_id))
+      #statsd = StatsClient('127.0.0.1', 8125)
+      #with statsd.timer('frontend_convert.{}'.format(video_id)):
+      resp = rabbitmq().send_to_queue("videoconvert::{}".format(video_id))
       return jsonify("video '{}' converted: '{}'".format(video_id, resp))
 
 @app.route("/v1/waspmq/msg/<message>")
