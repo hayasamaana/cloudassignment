@@ -14,7 +14,6 @@ sudo apt-get install -y python-pika
 
 # install python Flask web framework
 sudo pip install Flask
-sudo pip3 install flask
 
 # prepare application directory  
 mkdir /var/www
