@@ -20,5 +20,7 @@ sudo pip3 install flask
 mkdir /var/www
 cd /var/www
 
-# echo "Cloning our Cloud repo"
+#"Cloning our Cloud repo"
 git clone https://github.com/perbostrm/cloudassignment.git
+git clone https://github.com/muyiibidun/WASP.git
+

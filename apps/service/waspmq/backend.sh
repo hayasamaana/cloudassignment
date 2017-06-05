@@ -16,3 +16,5 @@ cd /usr/local/
 
 # echo "Cloning our Cloud repo"
 git clone https://github.com/perbostrm/cloudassignment.git
+git clone https://github.com/muyiibidun/WASP.git
+
