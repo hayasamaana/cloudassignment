@@ -3,6 +3,7 @@
 import threading
 from random import randint
 import time
+import requests
 
 class ClientThread(threading.Thread):
     def __init__(self, threadNumber):
@@ -10,6 +11,7 @@ class ClientThread(threading.Thread):
         self.setName('Thread ' + str(threadNumber))
         self.meanTimeBetweenRequests = 4
         self.numberOfVideos = 5
+        self.request_url = 'http://129.192.68.60/wasp/v1/waspmq/convert/'
 
     def selectVideo(self):
         return randint(1,self.numberOfVideos)
@@ -19,7 +21,10 @@ class ClientThread(threading.Thread):
         print('%s: requesting conversion of video %d' % (self.getName(), videoNumber))
         timeStart = time.time()
         time.sleep(.01) # todo: remove
+        r = requests.get(self.request_url + str(videoNumber))
+        print(r.status_code)
         # todo: send HTTP GET to Frontend Web API
+
         timeEnd = time.time()
         print('%s: conversion done in %g seconds' % (self.getName(), timeEnd-timeStart))
 
@@ -41,7 +46,7 @@ if __name__ == '__main__':
     numberOfThreads = 2
 
     # Declare client threads
-    threads = [ClientThread(count) for count in xrange(numberOfThreads)]
+    threads = [ClientThread(i) for i in range(numberOfThreads)]
 
     # Start client threads
     for t in range(0,numberOfThreads):
