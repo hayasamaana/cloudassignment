@@ -14,5 +14,5 @@ sudo apt-get install -y python-pika
 mkdir /usr/local/
 cd /usr/local/
 
-# echo "Cloning repo with WASP"
+# echo "Cloning our Cloud repo"
 git clone https://github.com/muyiibidun/WASP.git

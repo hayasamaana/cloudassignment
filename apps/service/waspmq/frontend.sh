@@ -17,5 +17,5 @@ sudo pip install Flask
 mkdir /var/www
 cd /var/www
 
-# echo "Cloning repo with WASP2"
+# echo "Cloning our Cloud repo"
 git clone https://github.com/muyiibidun/WASP.git
