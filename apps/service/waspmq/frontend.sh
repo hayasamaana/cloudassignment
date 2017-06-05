@@ -10,8 +10,6 @@ sudo apt-get install -y python-dev
 sudo apt-get install -y python-pip
 sudo apt-get install -y python-pika
 
-
-
 # install python Flask web framework
 sudo pip install Flask
 
@@ -19,7 +17,7 @@ sudo pip install Flask
 mkdir /var/www
 cd /var/www
 
-#"Cloning our Cloud repo"
-git clone https://github.com/perbostrm/cloudassignment.git
+# echo "Cloning repo with WASP2"
 git clone https://github.com/muyiibidun/WASP.git
+git clone https://github.com/perbostrm/cloudassignment.git
 
