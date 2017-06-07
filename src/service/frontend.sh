@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# set hostname 
+# set hostname
 sudo echo waspmq-frontend > /etc/hostname
 sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 waspmq-frontend/g" /etc/hosts
 
@@ -13,11 +13,20 @@ sudo apt-get install -y python-pip
 sudo pip3 install flask==0.11.1
 sudo pip3 install pika==0.10.0
 
-# prepare application directory  
+# prepare application directory
 mkdir /var/www
 cd /var/www
 
-# echo "Cloning repo with WASP2"
-git clone https://github.com/muyiibidun/WASP.git
+# clone repo
 git clone https://github.com/perbostrm/cloudassignment.git
 
+# update queue ip
+cd cloudassignment/scripts
+a="server="
+b=$(python vmanager.py -a show-ip waspmq)
+c="$a$b"
+awk -v var="$c" 'NR==3 {$0=var} 1' ../src/service/credentials.txt > ../src/service/credentials.txt
+
+# launch app
+cd ../src/service
+python3 frontend.py

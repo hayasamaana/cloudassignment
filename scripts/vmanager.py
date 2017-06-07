@@ -3,7 +3,7 @@ from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from novaclient.client import Client as NovaClient
 import datetime, sys, time
-from ConfigParser import SafeConfigParser 
+from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 
 class Manager:
@@ -84,7 +84,9 @@ class Manager:
       instance = self.nova.servers.find(name=vm)
       #print(instance.networks)
       #ip=instance.networks['CloudCourse'][0]
-      print  (instance.networks[self.net_id]) #("ipaddress:"+ip);
+      tmp = instance.networks[self.net_id]
+      print (tmp[0])
+      #print  (instance.networks[self.net_id]) #("ipaddress:"+ip);
 
     def describe(self, vm):
         instance = self.nova.servers.find(name=vm)
@@ -102,7 +104,7 @@ if __name__=="__main__":
    parser = OptionParser()
 
    parser.add_option('-c', '--initfile', dest='initFile', help='Path to INITFILE', metavar='INITFILE', default="vm-init.sh")
-   parser.add_option('-a', '--action', dest='action', 
+   parser.add_option('-a', '--action', dest='action',
 		     help='Action to perform: [list | terminate VM_NAME | create VM_NAME | describe VM_NAME | show-ip VM_NAME | assign-fip VM_NAME]',
                      default="list", metavar='ACTION')
    (options, args) = parser.parse_args()

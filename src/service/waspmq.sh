@@ -17,6 +17,7 @@ sudo apt-get update
 
 #Install Erlang
 sudo apt-get -y install socat erlang-nox=1:19.3-1
+sudo apt-get -f install
 
 #Download the official RabbitMQ 3.6.9 .deb installer package (check the official installation guide for more: http://www.rabbitmq.com/install-debian.html)
 sudo wget http://www.rabbitmq.com/releases/rabbitmq-server/v3.6.9/rabbitmq-server_3.6.9-1_all.deb
@@ -27,7 +28,6 @@ sudo dpkg -i rabbitmq-server_3.6.9-1_all.deb
 
 # enable the RabbitMQ service
 sudo update-rc.d rabbitmq-server enable
-
 
 #Start  the RabbitMQ service
 sudo service rabbitmq-server start
@@ -40,6 +40,6 @@ sudo service rabbitmq-server start
 sudo pip3 install pika==0.10.0
 
 # create users and set privileges to enable remote connection
-rabbitmqctl add_user test test
-rabbitmqctl set_user_tags test administrator
-rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+sudo rabbitmqctl add_user test test
+sudo rabbitmqctl set_user_tags test administrator
+sudo rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
