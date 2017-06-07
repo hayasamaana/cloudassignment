@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# set hostname 
+# set hostname
 sudo echo waspmq-frontend > /etc/hostname
 sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 waspmq-frontend/g" /etc/hosts
 
@@ -13,9 +13,10 @@ sudo apt-get install -y python-pika
 # install python Flask web framework
 sudo pip install Flask
 
-# prepare application directory  
+# prepare application directory
 mkdir /var/www
 cd /var/www
 
 # echo "Cloning repo with WASP2"
 git clone https://github.com/muyiibidun/WASP.git
+git clone https://github.com/perbostrm/cloudassignment.git
