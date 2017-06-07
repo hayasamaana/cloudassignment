@@ -32,5 +32,5 @@ git clone https://github.com/perbostrm/cloudassignment.git
 
 # launch app
 #cd ../src/service
-cd cloudassignment/src/service
-python3 frontend.py
+#cd cloudassignment/src/service
+#python3 frontend.py
