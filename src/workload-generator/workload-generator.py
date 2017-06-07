@@ -11,7 +11,7 @@ class ClientThread(threading.Thread):
         self.setName('Thread ' + str(threadNumber))
         self.meanTimeBetweenRequests = 4
         self.numberOfVideos = 5
-        self.request_url = 'http://129.192.68.60/wasp/v1/waspmq/convert/'
+        self.request_url = 'http://172.16.0.8/wasp/v1/waspmq/convert/'
 
     def selectVideo(self):
         return randint(1,self.numberOfVideos)
