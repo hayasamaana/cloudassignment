@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# set hostname 
+# set hostname
 sudo echo waspmq > /etc/hostname
 sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 waspmq/g" /etc/hosts
 
@@ -29,18 +29,16 @@ sudo dpkg -i rabbitmq-server_3.6.9-1_all.deb
 sudo update-rc.d rabbitmq-server enable
 
 
-#Start  the RabbitMQ service 
+#Start  the RabbitMQ service
 sudo service rabbitmq-server start
 
 #To stop the service use the command
 # sudo service rabbitmq-server stop
 
-# Install python pika 
+# Install python pika
 sudo apt-get install -y python-pika
 
 # create users and set privileges to enable remote connection
-rabbitmqctl add_user test test
-rabbitmqctl set_user_tags test administrator
-rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
-
-
+sudo rabbitmqctl add_user test test
+sudo rabbitmqctl set_user_tags test administrator
+sudo rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
