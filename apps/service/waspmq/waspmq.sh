@@ -37,7 +37,7 @@ sudo service rabbitmq-server start
 
 # Install python pika
 #sudo apt-get install -y python-pika
-sudo pip3 install pika
+sudo pip3 install pika==0.10.0
 
 # create users and set privileges to enable remote connection
 rabbitmqctl add_user test test

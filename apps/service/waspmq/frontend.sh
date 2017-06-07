@@ -8,9 +8,10 @@ sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 waspmq-frontend/g" /etc/hosts
 sudo apt-get -y update
 sudo apt-get install -y python3-dev
 sudo apt-get install -y python3-pip
+sudo apt-get install -y python-pip
 #sudo apt-get install -y python-pika
-sudo pip3 install flask
-sudo pip3 install pika
+sudo pip3 install flask==0.11.1
+sudo pip3 install pika==0.10.0
 
 # prepare application directory  
 mkdir /var/www
