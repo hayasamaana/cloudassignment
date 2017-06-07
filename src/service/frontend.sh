@@ -21,12 +21,13 @@ cd /var/www
 git clone https://github.com/perbostrm/cloudassignment.git
 
 # update queue ip
-cd cloudassignment/scripts
-a="server="
-b=$(python vmanager.py -a show-ip waspmq)
-c="$a$b"
-awk -v var="$c" 'NR==3 {$0=var} 1' ../src/service/credentials.txt > ../src/service/credentials.txt
+#cd cloudassignment/scripts
+#a="server="
+#b=$(python vmanager.py -a show-ip waspmq)
+#c="$a$b"
+#awk -v var="$c" 'NR==3 {$0=var} 1' ../src/service/credentials.txt > ../src/service/credentials.txt
 
 # launch app
-cd ../src/service
+#cd ../src/service
+cd cloudassignment/src/service
 python3 frontend.py
