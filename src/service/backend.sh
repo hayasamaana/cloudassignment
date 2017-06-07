@@ -12,6 +12,11 @@ sudo apt-get install -y python3-pip
 sudo pip3 install flask
 sudo pip3 install pika
 
+sudo apt install python-dev python-pip
+export LC_ALL=C
+sudo pip install python-novaclient==7.1.0
+sudo pip install python-swiftclient
+
 # prepare directory
 mkdir /usr/local/
 cd /usr/local/
@@ -24,7 +29,7 @@ cd cloudassignment/scripts
 a="server="
 b=$(python vmanager.py -a show-ip waspmq)
 c="$a$b"
-awk -v var="$c" 'NR==3 {$0=var} 1' ../src/service/credentials.txt > ../src/service/credentials.txt
+sudo awk -v var="$c" 'NR==3 {$0=var} 1' ../src/service/credentials.txt > ../src/service/credentials.txt
 
 # launch app
 cd ../src/service
