@@ -17,7 +17,8 @@ sudo dpkg -i erlang-solutions_1.0_all.deb
 sudo apt-get update
 
 #Install Erlang
-sudo apt-get -y install socat erlang-nox=1:19.3-1
+#sudo apt-get -y install socat erlang-nox=1:19.3-1
+sudo apt-get -y install socat erlang-nox
 #sudo apt-get -f -y install
 
 #Download the official RabbitMQ 3.6.9 .deb installer package (check the official installation guide for more: http://www.rabbitmq.com/install-debian.html)
