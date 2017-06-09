@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-
+import configparser as ConfigParser
+from optparse import OptionParser
 import pika
 
 def queue_length(connection_info=None):
@@ -15,10 +16,17 @@ def queue_length(connection_info=None):
     channel = connection.channel()
     print(channel.queue_declare(queue="your_queue", durable=True,  exclusive=False,
                       auto_delete=False).method.message_count)
+
+def run(connection_info=None):
+    numberOfRequests = 10
+    for i in range(0,numberOfRequests):
+        time.sleep(1)
+        queue_length(connection_info)
+
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option('-c', '--credential', dest='credentialFile',
-                      default="./credentials.txt",
+                      default="../../credentials/mq-credentials.txt",
                       help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
     (options, args) = parser.parse_args()
 
@@ -32,7 +40,7 @@ if __name__ == "__main__":
         connection["username"] = config.get('rabbit', 'username')
         connection["password"] = config.get('rabbit', 'password')
         print("test.py starting")
-        queue_length(connection_info=connection)
+        run(connection_info=connection)
     else:
         # e.g. python worker.py -c credentials.txt
         print("Syntax: 'python worker.py -h' | '--help'")

@@ -39,7 +39,7 @@ def receive(connection_info=None):
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option('-c', '--credential', dest='credentialFile',
-                      default="./credentials.txt",
+                      default="../..etc/credentials/mq-credentials.txt",
                       help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
     (options, args) = parser.parse_args()
 
