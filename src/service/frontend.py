@@ -7,7 +7,7 @@ import time
 from flask import Flask, g, jsonify
 import pika
 
-#from statsd import StatsClient
+from statsd import StatsClient
 
 
 MODE_PERSISTENT_MSGS = 2
@@ -85,6 +85,9 @@ def rabbitmq_connect(filename="./credentials.txt"):
     print("Connection instantiated using '%s'" % filename)
     return Connection(connection_info=connection)
 
+def valid_keys():
+    return ["1.avi","2.avi","3.avi","4.avi","5.avi","6.avi","7.avi" ]
+
 @app.route("/")
 def index():
     return "WASPMQ Microservices\n"
@@ -95,15 +98,15 @@ def waspmq():
 
 @app.route("/v1/waspmq/convert/<video_id>", methods=["GET"])
 def videosend(video_id):
-    if video_id > 10 :
-      r = "invalid video id."
+    if not video_id in valid_keys():
+      r = jsonify("invalid video id: '{}'. valid values are: {}".format(video_id, [x for x in videodb.keys()]))
       r.status_code = 400
       return r
     else:
       resp = None
-      #statsd = StatsClient('127.0.0.1', 8125)
-      #with statsd.timer('frontend_convert.{}'.format(video_id)):
-      resp = rabbitmq().send_to_queue("videoconvert::{}".format(video_id))
+      statsd = StatsClient('127.0.0.1', 8125)
+      with statsd.timer('webapi_convert.{}'.format(video_id)):
+        resp = rabbitmq().send_to_queue("videoconvert::{}".format(video_id))
       return jsonify("video '{}' converted: '{}'".format(video_id, resp))
 
 @app.route("/v1/waspmq/msg/<message>")

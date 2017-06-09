@@ -10,6 +10,7 @@ sudo apt-get install -y python3-dev
 sudo apt-get install -y python3-pip
 sudo pip3 install flask==0.11.1
 sudo pip3 install pika==0.10.0
+sudo pip3 install statsd
 export LC_ALL=C
 
 # prepare application directory
