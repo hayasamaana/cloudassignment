@@ -73,7 +73,7 @@ def rabbitmq():
         g.rabbitmq = rabbitmq_connect()
     return g.rabbitmq
 
-def rabbitmq_connect(filename="./credentials.txt"):
+def rabbitmq_connect(filename="../../etc/credentials/mq-credentials.txt"):
     config = ConfigParser.RawConfigParser()
     config.read(filename)
     connection = {}
@@ -117,7 +117,7 @@ def send(message):
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option('-c', '--credential', dest='credentialFile',
-                      default="./credentials.txt",
+                      default="../../etc/credentials/mq-credentials.txt",
                       help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
     (options, args) = parser.parse_args()
 
