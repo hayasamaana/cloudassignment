@@ -99,7 +99,7 @@ def waspmq():
 @app.route("/v1/waspmq/convert/<video_id>", methods=["GET"])
 def videosend(video_id):
     if not video_id in valid_keys():
-      r = jsonify("invalid video id: '{}'. valid values are: {}".format(video_id, [x for x in videodb.keys()]))
+      r = jsonify("invalid video id: '{}'.".format(video_id))
       r.status_code = 400
       return r
     else:
