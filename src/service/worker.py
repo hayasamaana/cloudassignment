@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import configparser as ConfigParser
 from optparse import OptionParser
-
+import time
 import pika
 
 def valid_keys():
@@ -16,6 +16,7 @@ def callback(ch, method, props, body):
       arg = body.split("::", 1)[1]
       if arg in valid_keys():
         print(" [x]   - converting video '{}'".format(arg))
+        time.sleep(3)
         result = "Finished without any trouble"
 
     print(" [x]   - done. result/reply: '{}'.".format(result))
