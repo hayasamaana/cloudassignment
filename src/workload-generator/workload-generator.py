@@ -11,7 +11,7 @@ class ClientThread(threading.Thread):
         self.setName('Thread ' + str(threadNumber))
         self.meanTimeBetweenRequests = 4
         self.numberOfVideos = 5
-        self.request_url = 'http://172.16.0.13/wasp/v1/waspmq/convert/'
+        self.request_url = 'http://172.16.0.8:8000/v1/waspmq/convert/'
 
     def selectVideo(self):
         return randint(1,self.numberOfVideos)
@@ -21,6 +21,7 @@ class ClientThread(threading.Thread):
         print('%s: requesting conversion of video %d' % (self.getName(), videoNumber))
         timeStart = time.time()
         time.sleep(.01) # todo: remove
+        print(self.request_url + str(videoNumber) + '.avi')
         r = requests.get(self.request_url + str(videoNumber) + '.avi')
         print(r.status_code)
         # todo: send HTTP GET to Frontend Web API
@@ -43,7 +44,7 @@ class ClientThread(threading.Thread):
 
 
 if __name__ == '__main__':
-    numberOfThreads = 2
+    numberOfThreads = 100
 
     # Declare client threads
     threads = [ClientThread(i) for i in range(numberOfThreads)]
