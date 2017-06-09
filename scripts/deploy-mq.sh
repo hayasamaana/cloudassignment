@@ -5,9 +5,9 @@ while [ 1 ]
 do
     b=$(python vmanager.py -a show-ip waspmq)
     echo $b
-    if [ "$b" = "" ]
+    if [ "$b" = "instance not found" ]
     then
-            echo "IP not found"
+            echo $b
     else
             echo "IP found"
             a="server="

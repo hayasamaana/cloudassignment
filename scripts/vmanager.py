@@ -81,12 +81,15 @@ class Manager:
         #return {"Floating":ip.ip, "Fixed":ip.fixed_ip}
 
     def get_IP(self, vm):
-      instance = self.nova.servers.find(name=vm)
-      #print(instance.networks)
-      #ip=instance.networks['CloudCourse'][0]
-      tmp = instance.networks[self.net_id]
-      print (tmp[0])
-      #print  (instance.networks[self.net_id]) #("ipaddress:"+ip);
+    	try:
+            instance = self.nova.servers.find(name=vm)
+            #print(instance.networks)
+            #ip=instance.networks['CloudCourse'][0]
+            tmp = instance.networks[self.net_id]
+            print (tmp[0])
+            #print  (instance.networks[self.net_id]) #("ipaddress:"+ip);
+    	except IOError:
+    		print("instance not found")
 
     def describe(self, vm):
         instance = self.nova.servers.find(name=vm)
