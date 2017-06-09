@@ -4,6 +4,9 @@ from optparse import OptionParser
 
 import pika
 
+def valid_keys():
+    return ["1.avi","2.avi","3.avi","4.avi","5.avi","6.avi","7.avi" ]
+
 def callback(ch, method, props, body):
     print(" [x] Received '{}'".format(body))
     body = body.decode('utf-8')
@@ -11,7 +14,7 @@ def callback(ch, method, props, body):
     result = 'unknown message type' # default = fail
     if body.startswith("videoconvert::"):
       arg = body.split("::", 1)[1]
-      if arg < 11:
+      if arg in valid_keys():
         print(" [x]   - converting video '{}'".format(arg))
         result = "Finished without any trouble"
 
