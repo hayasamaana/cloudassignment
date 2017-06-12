@@ -6,7 +6,7 @@ import StorageOperations
 if __name__ == "__main__":
 
     filename = "testfile.txt"
-    fileCont = "TestString..."
+    fileCont = "testFile.txt"
     StorageOperations.upload_file(fileCont, filename, 'kribesContainer')
 
     fileExist = StorageOperations.file_exists(filename, 'kribesContainer')

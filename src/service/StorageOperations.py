@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 _opts = {'object_uu_threads': 20}
 def upload_file(file,filename,container):
+    print(file)    
     with SwiftService(options=_opts) as swift, OutputManager() as out_manager:
         try:
             objs = []
@@ -19,7 +20,7 @@ def upload_file(file,filename,container):
 
             # Schedule uploads on the SwiftService thread pool and iterate
             # over the results
-            for r in swift.upload(container, objs):
+            for r in swift.upload(objects=objs, container=container):
                 if r['success']:
                     if 'object' in r:
                         print(r['object'])
