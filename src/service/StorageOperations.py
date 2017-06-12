@@ -18,21 +18,17 @@ def upload_file(file,filename,container):
             objs = []
             objs.append(SwiftUploadObject(file, object_name=filename))
 
-            # Schedule uploads on the SwiftService thread pool and iterate
-            # over the results
-            r = swift.upload(objects=objs, container=container):
-            if r['success']:
-                if 'object' in r:
-                    print(r['object'])
-                elif 'for_object' in r:
-                    print(
-                        '%s segment %s' % (r['for_object'],
-                                           r['segment_index'])
-                        )
-            else:
-                error = r['error']
-                logger.error( "Failed to upload object %s to container %s: %s" %(container, r['object'], error))
-		    print r
+            # Schedule an upload to swift
+            for r in swift.upload(objects=objs, container=container):
+               if r['success']:
+                  if 'object' in r:
+                     print(r['object'])
+                  elif 'for_object' in r:
+                     print('%s segment %s' % (r['for_object'], r['segment_index']))
+               else:
+                  error = r['error']
+                  logger.error( "Failed to upload object %s to container %s: %s" %(container, r['object'], error))	    
+               print r
 
         except SwiftError as e:
             logger.error(e.value)
