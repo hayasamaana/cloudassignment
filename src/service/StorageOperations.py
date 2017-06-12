@@ -56,4 +56,22 @@ def file_exists(filename,container):
 			return True
 		else:
             return False
-            
+
+
+def delete_file(filename, container):
+    objects = [filename]
+    with SwiftService(options=_opts) as swift:
+    del_iter = swift.delete(container=container, objects=objects)
+    for del_res in del_iter:
+        c = del_res.get('container', '')
+        o = del_res.get('object', '')
+        a = del_res.get('attempts')
+        if del_res['success'] and not del_res['action'] == 'bulk_delete':
+            rd = del_res.get('response_dict')
+            if rd is not None:
+                t = dict(rd.get('headers', {}))
+                if t:
+                    print('Successfully deleted {0}/{1} in {2} attempts (transaction id: {3})'.format(c, o, a, t)
+                    )
+                else:
+                    print('Successfully deleted {0}/{1} in {2} attempts'.format(c, o, a))

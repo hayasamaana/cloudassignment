@@ -14,5 +14,7 @@ if __name__ == "__main__":
     print(fileExist)
     fileExist2 = StorageOperations.file_exists("testfolder/acado_manual.pdf",'kribesContainer')
     print(fileExist2)
-    
+
     StorageOperations.download_file(filename, 'kribesContainer')
+
+    StorageOperations.delete_file(filename, 'kribesContainer')
