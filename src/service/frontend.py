@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import configparser as ConfigParser
+import ConfigParser
 from optparse import OptionParser
 import uuid
 import time
@@ -126,9 +126,9 @@ def send(message):
     rabbitmq().send_to_queue(message.replace("+", " "))
     return jsonify("Sent '%s'\n" % message.replace("+", " "))
 
-@app.route("/convert/<videoId>", methods=["POST"]
+@app.route("/convert/<videoId>", methods=["GET"])
 def conversionRequest(videoId):
-    if flask.request.method == 'POST':
+    if Flask.request.method == 'GET':
         if not videoId in valid_keys():
             r = jsonify("invalid video id: '{}'.".format(videoId))
             r.status_code = 400
@@ -137,7 +137,11 @@ def conversionRequest(videoId):
             # uniqueFilename = getUniqueFilename()
             convertedUrl = str(uuid.uuid4())+'.'+videoId
             # conversionRequest(videoId, uniqueFilename)
-            rabbitmq().conversionRequest("conversionRequest::{}".format(convertedUrl))
+            message = {}
+            message["type"] = "conversionRequest"
+            message["videoId"] = videoId
+            message["convertedUrl"] = convertedUrl
+            rabbitmq().conversionRequest(message)
             # return url for converted file
             r = jsonify("url for converted video: '{}'.".format(convertedUrl))
             r.status_code = 202
