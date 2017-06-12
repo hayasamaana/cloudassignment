@@ -44,7 +44,7 @@ def callback(ch, method, properties, body):
          return
 
     # upload converted video
-    success = uploadVideo(convertedVideoName, msg["convertedVideoName"])
+    success = uploadVideo("Videos/"+convertedVideoName, msg["convertedVideoName"])
     if not success:
         print(" [x] Upload failed")
         ch.basic_ack(delivery_tag = method.delivery_tag)

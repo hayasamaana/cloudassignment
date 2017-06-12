@@ -16,6 +16,7 @@ class Connection:
         self.credentials = pika.PlainCredentials(
             self.connection_info["username"],
             self.connection_info["password"])
+            
     def getConnection(self):
         qname = self.connection_info["queue"]
         connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -77,7 +78,7 @@ def conversionRequest(VideoName):
 
 @app.route("/conversiondone/<VideoName>", methods=["GET"])
 def conversionRequest(VideoName):
-    if not StorageOperations.file_exists("ConvertedVideos/"+VideoName,CONTAINERNAME)
+    if not StorageOperations.file_exists("ConvertedVideos/"+VideoName,CONTAINERNAME):
         message = {
             'status': 404,
             'message': 'Not found',

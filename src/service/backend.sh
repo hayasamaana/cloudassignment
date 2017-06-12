@@ -33,6 +33,7 @@ export OS_AUTH_URL=https://xerces.ericsson.net:5000/v3
 #cd /usr/local/
 
 # clone repo
+cd ~
 git clone https://github.com/perbostrm/cloudassignment.git
 
 # launch app
