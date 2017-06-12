@@ -14,7 +14,7 @@ class Manager:
 
 	parser = SafeConfigParser()
 	try:
-        parser.read("../etc/credentials/deploy-credentials.txt")
+                parser.read("../etc/credentials/deploy-credentials.txt")
 	except IOError:
 		print("Credential file missing")
 		sys.exit()
