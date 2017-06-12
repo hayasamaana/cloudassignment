@@ -12,3 +12,5 @@ if __name__ == "__main__":
     fileExist = StorageOperations.file_exists(filename, 'kribesContainer')
 
     print(fileExist)
+    fileExist2 = StorageOperations.file_exists("testfolder/acado_manual.pdf",'kribesContainer')
+    print(fileExist2)

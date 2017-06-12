@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 _opts = {'object_uu_threads': 20}
 def upload_file(file,filename,container):
-    print(file)    
+    print(file)
     with SwiftService(options=_opts) as swift, OutputManager() as out_manager:
         try:
             objs = []
@@ -20,29 +20,18 @@ def upload_file(file,filename,container):
 
             # Schedule uploads on the SwiftService thread pool and iterate
             # over the results
-            for r in swift.upload(objects=objs, container=container):
-                if r['success']:
-                    if 'object' in r:
-                        print(r['object'])
-                    elif 'for_object' in r:
-                        print(
-                            '%s segment %s' % (r['for_object'],
-                                               r['segment_index'])
-                            )
-                else:
-                    error = r['error']
-                    if r['action'] == "create_container":
-                        logger.warning(
-                            'Warning: failed to create container '
-                            "'%s'%s", container, error
+            r = swift.upload(objects=objs, container=container):
+            if r['success']:
+                if 'object' in r:
+                    print(r['object'])
+                elif 'for_object' in r:
+                    print(
+                        '%s segment %s' % (r['for_object'],
+                                           r['segment_index'])
                         )
-                    elif r['action'] == "upload_object":
-                        logger.error(
-                            "Failed to upload object %s to container %s: %s" %
-                            (container, r['object'], error)
-                        )
-                    else:
-                        logger.error("%s" % error)
+            else:
+                error = r['error']
+                logger.error( "Failed to upload object %s to container %s: %s" %(container, r['object'], error))
 		    print r
 
         except SwiftError as e:
