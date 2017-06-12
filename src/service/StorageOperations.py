@@ -27,7 +27,7 @@ def upload_file(file,filename,container):
                      print('%s segment %s' % (r['for_object'], r['segment_index']))
                else:
                   error = r['error']
-                  logger.error( "Failed to upload object %s to container %s: %s" %(container, r['object'], error))	    
+                  logger.error( "Failed to upload object %s to container %s: %s" %(container, r['object'], error))
                print r
 
         except SwiftError as e:
@@ -55,4 +55,4 @@ def file_exists(filename,container):
 		if stat_res['success']:
 			return True
 		else:
-                        return False
+            return False

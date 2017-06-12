@@ -147,9 +147,10 @@ def conversionRequest(videoId):
             r.status_code = 202
             return r
 
-@app.route("/convert/<videoId>", methods=["GET"]
+@app.route("/convert/<videoId>", methods=["GET"])
 def isConversionDone(videoId):
     # don't know what to do here
+    pass
 
 if __name__ == "__main__":
     parser = OptionParser()

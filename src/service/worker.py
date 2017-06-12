@@ -25,11 +25,12 @@ def callback(ch, method, props, body):
     body = body.decode('utf-8')
 
     # check if message is a conversion request
-    if not body.startswith("videoconvert::"):
+    if not body.startswith("conversionRequest::"):
         print(" [x] Not a video conversion request")
         ch.basic_ack(delivery_tag = method.delivery_tag)
         return
-    # # download video file
+
+    # download video file
     # filename = ???
     # inputVideo =  getVideo(filename)
     #
@@ -48,7 +49,7 @@ def callback(ch, method, props, body):
     #     print(" [x] Storing failed")
     #     ch.basic_ack(delivery_tag = method.delivery_tag)
     #     return
-    # 
+    #
     # print(" [x] Conversion request handled")
     ch.basic_ack(delivery_tag = method.delivery_tag)
 

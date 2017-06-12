@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+import pika
+from optparse import OptionParser
+import ConfigParser
+import json
+import StorageOperations
+
+CONTAINERNAME = "VideoStorage"
+
+
+def getVideo(fileName):
+    StorageOperations.download_file("videos/"+fileName,CONTAINERNAME)
+
+def uploadVideo(uploadFile,fileName):
+    StorageOperations.upload_file(uploadFile,"convertedVideos/"+fileName,CONTAINERNAME)
+    return StorageOperations.file_exists("convertedVideos/"+fileName,CONTAINERNAME)
+
+def convertVideo(videoId):
+    time.sleep(3)
+    success = True
+    return videoId, success
+    # success = True
+    # convertedVideo = ???
+    # return success, convertedVideo
+
+def callback(ch, method, properties, body):
+    msg = json.loads(body)
+
+    # check if message is a conversion request
+    if not msg["type"] == "conversionRequest":
+        print(" [x] Not a video conversion request")
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+        return
+
+    # download video file
+    getVideo(msg["videoId"])
+
+    # convert video
+    success, convertedVideoName = convertVideo(msg["videoId"])
+    if not success:
+         print(" [x] Conversion failed")
+         ch.basic_ack(delivery_tag = method.delivery_tag)
+         return
+
+    # upload converted video
+    success = uploadVideo(convertedVideoName, msg["convertedVideoId"])
+    if not success:
+        print(" [x] Upload failed")
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+        return
+
+    print(" [x] Conversion request handled")
+    ch.basic_ack(delivery_tag = method.delivery_tag)
+
+def receive(connection_info=None):
+	qname = "wasp"
+	credentials = pika.PlainCredentials(
+        connection_info["username"], connection_info["password"])
+	connection = pika.BlockingConnection(pika.ConnectionParameters(
+        connection_info["server"],connection_info["port"],'/',credentials))
+	channel = connection.channel()
+
+	channel.queue_declare(queue=qname)
+    channel.basic_qos(prefetch_count=1)
+	channel.basic_consume(callback, queue=qname, no_ack=True)
+	print(' [*] Waiting for messages. To exit press CTRL+C')
+	channel.start_consuming()
+
+
+if __name__=="__main__":
+	parser = OptionParser()
+    parser.add_option('-c', '--credential', dest='credentialFile',
+                      default="../../etc/credentials/mq-credentials.txt",
+                      help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
+	(options, args) = parser.parse_args()
+
+	if options.credentialFile:
+		config = ConfigParser.RawConfigParser()
+		config.read(options.credentialFile)
+		connection = {}
+		connection["server"] = config.get('rabbit', 'server')
+		connection["port"] = int(config.get('rabbit', 'port'))
+		connection["queue"] = config.get('rabbit', 'queue')
+		connection["username"] = config.get('rabbit', 'username')
+		connection["password"] = config.get('rabbit', 'password')
+		receive(connection_info=connection)
+	else:
+		#e.g. python backend.py -c credentials.txt
+		print("Syntax: 'python backend.py -h' | '--help' for help")
