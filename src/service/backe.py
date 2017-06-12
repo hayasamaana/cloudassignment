@@ -4,21 +4,22 @@ from optparse import OptionParser
 import ConfigParser
 import json
 import StorageOperations
+import time
 
 CONTAINERNAME = "VideoStorage"
 
 
 def getVideo(fileName):
-    StorageOperations.download_file("videos/"+fileName,CONTAINERNAME)
+    StorageOperations.download_file("Videos/"+fileName,CONTAINERNAME)
 
 def uploadVideo(uploadFile,fileName):
-    StorageOperations.upload_file(uploadFile,"convertedVideos/"+fileName,CONTAINERNAME)
-    return StorageOperations.file_exists("convertedVideos/"+fileName,CONTAINERNAME)
+    StorageOperations.upload_file(uploadFile,"ConvertedVideos/"+fileName,CONTAINERNAME)
+    return StorageOperations.file_exists("ConvertedVideos/"+fileName,CONTAINERNAME)
 
-def convertVideo(videoId):
+def convertVideo(VideoName):
     time.sleep(3)
     success = True
-    return videoId, success
+    return success, VideoName
     # success = True
     # convertedVideo = ???
     # return success, convertedVideo
@@ -33,17 +34,17 @@ def callback(ch, method, properties, body):
         return
 
     # download video file
-    getVideo(msg["videoId"])
+    getVideo(msg["VideoName"])
 
     # convert video
-    success, convertedVideoName = convertVideo(msg["videoId"])
+    success, convertedVideoName = convertVideo(msg["VideoName"])
     if not success:
          print(" [x] Conversion failed")
          ch.basic_ack(delivery_tag = method.delivery_tag)
          return
 
     # upload converted video
-    success = uploadVideo(convertedVideoName, msg["convertedVideoId"])
+    success = uploadVideo(convertedVideoName, msg["convertedVideoName"])
     if not success:
         print(" [x] Upload failed")
         ch.basic_ack(delivery_tag = method.delivery_tag)
@@ -69,9 +70,7 @@ def receive(connection_info=None):
 
 if __name__=="__main__":
 	parser = OptionParser()
-    parser.add_option('-c', '--credential', dest='credentialFile',
-                      default="../../etc/credentials/mq-credentials.txt",
-                      help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
+    parser.add_option('-c', '--credential', dest='credentialFile',default="../../etc/credentials/mq-credentials.txt", help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
 	(options, args) = parser.parse_args()
 
 	if options.credentialFile:
@@ -85,5 +84,4 @@ if __name__=="__main__":
 		connection["password"] = config.get('rabbit', 'password')
 		receive(connection_info=connection)
 	else:
-		#e.g. python backend.py -c credentials.txt
 		print("Syntax: 'python backend.py -h' | '--help' for help")

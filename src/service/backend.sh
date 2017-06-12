@@ -29,8 +29,8 @@ export OS_PROJECT_DOMAIN_NAME=xerces
 export OS_AUTH_URL=https://xerces.ericsson.net:5000/v3
 
 # prepare directory
-mkdir /usr/local/
-cd /usr/local/
+#mkdir /usr/local/
+#cd /usr/local/
 
 # clone repo
 git clone https://github.com/perbostrm/cloudassignment.git
