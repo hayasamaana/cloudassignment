@@ -34,9 +34,39 @@ class Connection:
         if self.corr_id == props.correlation_id:
             self.response = body
 
-    def send_to_queue(self, message):
-        self.response = None
-        self.corr_id = str(uuid.uuid4())
+    # def send_to_queue(self, message):
+    #     self.response = None
+    #     self.corr_id = str(uuid.uuid4())
+    #
+    #     qname = self.connection_info["queue"]
+    #     self.channel.queue_declare(queue=qname)
+    #     self.channel.basic_publish(exchange='',
+    #                           routing_key=qname,
+    #                           body=message,
+    #                           properties=pika.BasicProperties(
+    #                             delivery_mode = MODE_PERSISTENT_MSGS,
+    #                             reply_to = self.callback_queue,
+    #                             correlation_id = self.corr_id
+    #                           ))
+    #     print(" [x] Sent '%s'" % message)
+    #
+    #     start_time = time.time()
+    #     i = 0
+    #     while self.response is None:
+    #         i += 1
+    #         if i > 100:
+    #             i = 0
+    #             now_time = time.time() - start_time
+    #             if now_time > TIMEOUT_SECONDS:
+    #                 print(" [x] timed out after {} seconds".format(TIMEOUT_SECONDS))
+    #                 return 'error:timeout'
+    #
+    #         self.connection.process_data_events()
+    #         time.sleep(0.005) # block 5ms to avoid cpu overload
+    #     print(" [x] Received reply '%s'" % self.response)
+    #     return self.response
+
+    def conversionRequest(self, message):
 
         qname = self.connection_info["queue"]
         self.channel.queue_declare(queue=qname)
@@ -44,27 +74,9 @@ class Connection:
                               routing_key=qname,
                               body=message,
                               properties=pika.BasicProperties(
-                                delivery_mode = MODE_PERSISTENT_MSGS,
-                                reply_to = self.callback_queue,
-                                correlation_id = self.corr_id
+                                delivery_mode = MODE_PERSISTENT_MSGS
                               ))
         print(" [x] Sent '%s'" % message)
-
-        start_time = time.time()
-        i = 0
-        while self.response is None:
-            i += 1
-            if i > 100:
-                i = 0
-                now_time = time.time() - start_time
-                if now_time > TIMEOUT_SECONDS:
-                    print(" [x] timed out after {} seconds".format(TIMEOUT_SECONDS))
-                    return 'error:timeout'
-
-            self.connection.process_data_events()
-            time.sleep(0.005) # block 5ms to avoid cpu overload
-        print(" [x] Received reply '%s'" % self.response)
-        return self.response
 
 app = Flask(__name__)
 
@@ -113,6 +125,27 @@ def videosend(video_id):
 def send(message):
     rabbitmq().send_to_queue(message.replace("+", " "))
     return jsonify("Sent '%s'\n" % message.replace("+", " "))
+
+@app.route("/convert/<videoId>", methods=["POST"]
+def conversionRequest(videoId):
+    if flask.request.method == 'POST':
+        if not videoId in valid_keys():
+            r = jsonify("invalid video id: '{}'.".format(videoId))
+            r.status_code = 400
+            return r
+        else:
+            # uniqueFilename = getUniqueFilename()
+            convertedUrl = str(uuid.uuid4())+'.'+videoId
+            # conversionRequest(videoId, uniqueFilename)
+            rabbitmq().conversionRequest("conversionRequest::{}".format(convertedUrl))
+            # return url for converted file
+            r = jsonify("url for converted video: '{}'.".format(convertedUrl))
+            r.status_code = 202
+            return r
+
+@app.route("/convert/<videoId>", methods=["GET"]
+def isConversionDone(videoId):
+    # don't know what to do here
 
 if __name__ == "__main__":
     parser = OptionParser()

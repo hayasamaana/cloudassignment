@@ -7,24 +7,69 @@ import pika
 def valid_keys():
     return ["1.avi","2.avi","3.avi","4.avi","5.avi","6.avi","7.avi" ]
 
+def convertVideo(inputVideo):
+    time.sleep(3)
+    return True
+    # success = True
+    # convertedVideo = ???
+    # return success, convertedVideo
+
+def storeFile(file,path):
+    return True
+
+def getVideo(fileName):
+    return
+
 def callback(ch, method, props, body):
     print(" [x] Received '{}'".format(body))
     body = body.decode('utf-8')
 
-    result = 'unknown message type' # default = fail
-    if body.startswith("videoconvert::"):
-      arg = body.split("::", 1)[1]
-      if arg in valid_keys():
-        print(" [x]   - converting video '{}'".format(arg))
-        time.sleep(3)
-        result = "Finished without any trouble"
-
-    print(" [x]   - done. result/reply: '{}'.".format(result))
-    ch.basic_publish(exchange='',
-                 routing_key=props.reply_to,
-                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
-                 body=str(result))
+    # check if message is a conversion request
+    if not body.startswith("videoconvert::"):
+        print(" [x] Not a video conversion request")
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+        return
+    # # download video file
+    # filename = ???
+    # inputVideo =  getVideo(filename)
+    #
+    # # convert video
+    # # success, convertedVideo = convertVideo(inputVideo)
+    # success = convertVideo(inputVideo)
+    # if not success:
+    #     print(" [x] Conversion failed")
+    #     ch.basic_ack(delivery_tag = method.delivery_tag)
+    #     return
+    #
+    # # upload converted video
+    # # convertedPath = ???
+    # # success = storeVideo(convertedVideo, convertedPath)
+    # if not success:
+    #     print(" [x] Storing failed")
+    #     ch.basic_ack(delivery_tag = method.delivery_tag)
+    #     return
+    # 
+    # print(" [x] Conversion request handled")
     ch.basic_ack(delivery_tag = method.delivery_tag)
+
+
+# def oldcallback(ch, method, props, body):
+#     print(" [x] Received '{}'".format(body))
+#     body = body.decode('utf-8')
+#
+#     result = 'unknown message type' # default = fail
+#     if body.startswith("videoconvert::"):
+#         arg = body.split("::", 1)[1]
+#         if arg in valid_keys():
+#             print(" [x]   - converting video '{}'".format(arg))
+#             result = "Finished without any trouble"
+#
+#     print(" [x]   - done. result/reply: '{}'.".format(result))
+#     ch.basic_publish(exchange='',
+#                  routing_key=props.reply_to,
+#                  properties=pika.BasicProperties(correlation_id = props.correlation_id),
+#                  body=str(result))
+#     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 def receive(connection_info=None):
     qname = "wasp"
