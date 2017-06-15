@@ -21,6 +21,7 @@ def queue_length(connection_info=None):
     queueLen = channel.queue_declare(queue="wasp", durable=False,  exclusive=False,
                       auto_delete=False,passive=True).method.message_count
     print(queueLen)
+    return queueLen
 
 def run(connection_info=None):
     nrWorkers = LOWEST_NR_OF_WORKERS
@@ -32,19 +33,18 @@ def run(connection_info=None):
         if (controlError) >= WORKER_THRESHOLD:
             print("increasing number of workers")
             for i in range(1, controlError+1):
+                print("deploying")
                 #Call the bash script for creating workers
                 #subprocess.call(INCREASE_SCRIPT+str(nrWorkers+i), shell=True)
             nrWorkers += controlError
-            updateStartQueue = True
+
         if (-controlError >= WORKER_THRESHOLD):
             print("decreasing the number of workers")
             for i in range(1, -controlError+1):
+                print("killingInTheNameOf")
                 #Call the bash script for deleting workers
                 #subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
             nrWorkers += controlError
-            updateStartQueue = True
-        if(updateStartQueue):
-            startQueue = currQueue
 
 
 if __name__ == "__main__":
