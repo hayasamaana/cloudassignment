@@ -1,30 +1,51 @@
-#!/usr/bin/python3
-import configparser as ConfigParser
+#!/usr/bin/python
+import ConfigParser
 from optparse import OptionParser
 import pika
 import time
+import subprocess
 
-#sudo rabbitmqctl list_queues name messages messages_ready messages_unacknowledged | grep wasp
+LOWEST_NR_OF_WORKERS = 2
+WORKER_THRESHOLD = 2
+INCREASE_SCRIPT = "../../scripts/./deploy-backend.sh "
+DECREASE_SCRIPT = "../../scripts/./delete-backend.sh "
+Tconv = 5
+Tmax = 20
 
 def queue_length(connection_info=None):
-    # connection = pika.BlockingConnection(pika.ConnectionParameters(
-    #             host='localhost',
-    #             port=5672,
-    #             credentials=pika.credentials.PlainCredentials('guest', 'guest'),
-    #         )
     credentials = pika.PlainCredentials(
         connection_info["username"], connection_info["password"])
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         connection_info["server"], connection_info["port"], '/', credentials))
     channel = connection.channel()
-    print(channel.queue_declare(queue="wasp", durable=False,  exclusive=False,
-                      auto_delete=False,passive=True).method.message_count)
+    queueLen = channel.queue_declare(queue="wasp", durable=False,  exclusive=False,
+                      auto_delete=False,passive=True).method.message_count
+    print(queueLen)
 
 def run(connection_info=None):
-    numberOfRequests = 1000
-    for i in range(0,numberOfRequests):
-        time.sleep(0.5)
-        queue_length(connection_info)
+    nrWorkers = LOWEST_NR_OF_WORKERS
+    while True :
+        time.sleep(1)
+        currQueue = queue_length(connection_info)
+        workerRef = max((currQueue*Tconv)/Tmax,LOWEST_NR_OF_WORKERS)
+        controlError = workerRef - nrWorkers
+        if (controlError) >= WORKER_THRESHOLD:
+            print("increasing number of workers")
+            for i in range(1, controlError+1):
+                #Call the bash script for creating workers
+                #subprocess.call(INCREASE_SCRIPT+str(nrWorkers+i), shell=True)
+            nrWorkers += controlError
+            updateStartQueue = True
+        if (-controlError >= WORKER_THRESHOLD):
+            print("decreasing the number of workers")
+            for i in range(1, -controlError+1):
+                #Call the bash script for deleting workers
+                #subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
+            nrWorkers += controlError
+            updateStartQueue = True
+        if(updateStartQueue):
+            startQueue = currQueue
+
 
 if __name__ == "__main__":
     parser = OptionParser()
