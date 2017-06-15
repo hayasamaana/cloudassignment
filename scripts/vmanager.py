@@ -57,7 +57,7 @@ class Manager:
         return
 
     def delete(self, name):
-        instance = self.nova.servers.find(name=vm)
+        instance = self.nova.servers.find(name=name)
         vmId = instance.id
         self.nova.servers.delete(vmId)
         print("VM %s deleted" %name.upper())
