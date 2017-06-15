@@ -56,6 +56,20 @@ class Manager:
             print ("%d\t%s"%(idx,server.name),"\t",server.networks,sep="")
         return
 
+    def health_check(self):
+        errorFound = False
+        for idx, server in enumerate(self.nova.servers.list()):
+            curr_status = server.status.lower()
+            if(curr_status != "active"):
+                delete(server.name)
+                create(server.name)
+                errorFound = True
+        if(errorFound):
+            print("Re-created non-active servers done")
+        else:
+            print("All servers active")
+        return
+
     def delete(self, name):
         instance = self.nova.servers.find(name=name)
         vmId = instance.id
@@ -140,5 +154,7 @@ if __name__=="__main__":
             manager.get_IP(vm=args[0])
         if options.action == "assign-fip":
             manager.assign_floating_IP(vm=args[0])
+        if options.action == "health-check":
+            manager.health_check()
    else:
         print("Syntax: 'python vmanager.py -h' | '--help' for help")
