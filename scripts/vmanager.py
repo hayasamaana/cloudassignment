@@ -56,6 +56,16 @@ class Manager:
             print ("%d\t%s"%(idx,server.name),"\t",server.networks,sep="")
         return
 
+    def delete(self, name):
+        for server in enumerate(self.nova.servers.list()):
+           serverName = server.name
+           if serverName == name:
+               self.nova.servers.delete(server.id)
+               break
+        print("VM %s deleted" %name.upper())
+        return
+
+
     def terminate(self, vm=""):
         server_exists = False
         for s in self.nova.servers.list():
@@ -124,8 +134,8 @@ if __name__=="__main__":
         if options.action == "create":
             manager.start_script = options.initFile
             manager.create(name=args[0])
-		    #time.sleep(1)
-	        #print(manager.get_IP(vm=args[0]))
+        if options.action == "delete"
+            manager.delete(name=args[0])
         if options.action == "describe":
             manager.describe(vm=args[0])
         if options.action == "show-ip":
