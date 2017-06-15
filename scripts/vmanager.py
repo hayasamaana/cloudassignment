@@ -60,9 +60,15 @@ class Manager:
         errorFound = False
         for idx, server in enumerate(self.nova.servers.list()):
             curr_status = server.status.lower()
-            if(curr_status != "active"):
-                delete(server.name)
-                create(server.name)
+            if(curr_status == "paused"):
+                if "frontend" in server.name:
+                    self.delete(server.name)
+                    self.start_script = "../src/service/frontend.sh"
+                    self.create(server.name)
+                if "backend" in server.name:
+                    self.delete(server.name)
+                    self.start_script = "../src/service/backend.sh"
+                    self.create(server.name)
                 errorFound = True
         if(errorFound):
             print("Re-created non-active servers done")
