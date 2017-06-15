@@ -57,11 +57,9 @@ class Manager:
         return
 
     def delete(self, name):
-        for server in enumerate(self.nova.servers.list()):
-           serverName = server.name
-           if serverName == name:
-               self.nova.servers.delete(server.id)
-               break
+        instance = self.nova.servers.find(name=vm)
+        vmId = instance.id
+        self.nova.servers.delete(vmId)
         print("VM %s deleted" %name.upper())
         return
 
@@ -134,7 +132,7 @@ if __name__=="__main__":
         if options.action == "create":
             manager.start_script = options.initFile
             manager.create(name=args[0])
-        if options.action == "delete"
+        if options.action == "delete":
             manager.delete(name=args[0])
         if options.action == "describe":
             manager.describe(vm=args[0])
