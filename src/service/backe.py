@@ -5,6 +5,7 @@ import ConfigParser
 import json
 import StorageOperations
 import time
+import subprocess
 
 CONTAINERNAME = "VideoStorage"
 
@@ -73,7 +74,9 @@ if __name__=="__main__":
     parser.add_option('-c', '--credential', dest='credentialFile',default="../../etc/credentials/mq-credentials.txt", help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
 	(options, args) = parser.parse_args()
 
-	if options.credentialFile:
+    subprocess.call("../../scripts/./swiftclient-credentials.sh", shell=True)
+
+    if options.credentialFile:
 		config = ConfigParser.RawConfigParser()
 		config.read(options.credentialFile)
 		connection = {}
