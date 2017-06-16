@@ -63,14 +63,14 @@ class Manager:
             if(curr_status == "error"):
                 if "frontend" in server.name:
                     self.delete(server.name)
-                    self.start_script = "../src/service/frontend.sh"
+                    self.start_script = "frontend.sh"
                     self.create(server.name)
                     errorFound = True
                 if "backend" in server.name:
                     self.delete(server.name)
-                    self.start_script = "../src/service/backend.sh"
+                    self.start_script = "backend.sh"
                     self.create(server.name)
-                    errorFound = True                
+                    errorFound = True
         if(errorFound):
             print("Re-created non-active servers done")
         else:

@@ -1,101 +1,46 @@
-#!/usr/bin/env python3
-import ConfigParser
+#!/usr/bin/env python
+from flask import Flask, jsonify
+import pika, ConfigParser
 from optparse import OptionParser
 import uuid
-import time
-
-from flask import Flask, g, jsonify
-import pika
-
-from statsd import StatsClient
-
+import json
+import StorageOperations
+import subprocess
 
 MODE_PERSISTENT_MSGS = 2
-TIMEOUT_SECONDS = 3600
+CONTAINERNAME = "VideoStorage"
 
 class Connection:
     def __init__(self, connection_info=None):
         self.connection_info = connection_info
+        print(self.connection_info)
         self.credentials = pika.PlainCredentials(
-            self.connection_info["username"], self.connection_info["password"])
+            self.connection_info["username"],
+            self.connection_info["password"])
 
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.connection_info["server"],
-                                                  self.connection_info["port"], '/',
-                                                  self.credentials))
-        self.channel = self.connection.channel()
-
-        # configure reply channel
-        result = self.channel.queue_declare(exclusive=True)
-        self.callback_queue = result.method.queue
-        self.channel.basic_consume(self.on_reply, no_ack=True,
-                                   queue=self.callback_queue)
-
-    def on_reply(self, ch, method, props, body):
-        if self.corr_id == props.correlation_id:
-            self.response = body
-
-    # def send_to_queue(self, message):
-    #     self.response = None
-    #     self.corr_id = str(uuid.uuid4())
-    #
-    #     qname = self.connection_info["queue"]
-    #     self.channel.queue_declare(queue=qname)
-    #     self.channel.basic_publish(exchange='',
-    #                           routing_key=qname,
-    #                           body=message,
-    #                           properties=pika.BasicProperties(
-    #                             delivery_mode = MODE_PERSISTENT_MSGS,
-    #                             reply_to = self.callback_queue,
-    #                             correlation_id = self.corr_id
-    #                           ))
-    #     print(" [x] Sent '%s'" % message)
-    #
-    #     start_time = time.time()
-    #     i = 0
-    #     while self.response is None:
-    #         i += 1
-    #         if i > 100:
-    #             i = 0
-    #             now_time = time.time() - start_time
-    #             if now_time > TIMEOUT_SECONDS:
-    #                 print(" [x] timed out after {} seconds".format(TIMEOUT_SECONDS))
-    #                 return 'error:timeout'
-    #
-    #         self.connection.process_data_events()
-    #         time.sleep(0.005) # block 5ms to avoid cpu overload
-    #     print(" [x] Received reply '%s'" % self.response)
-    #     return self.response
+    def getConnection(self):
+        qname = self.connection_info["queue"]
+        connection = pika.BlockingConnection(pika.ConnectionParameters(
+            self.connection_info["server"],
+            self.connection_info["port"],'/',
+            self.credentials))
+        channel = connection.channel()
+        channel.queue_declare(queue=qname)
+        return connection, channel
 
     def conversionRequest(self, message):
-
-        qname = self.connection_info["queue"]
-        self.channel.queue_declare(queue=qname)
-        self.channel.basic_publish(exchange='',
-                              routing_key=qname,
-                              body=message,
-                              properties=pika.BasicProperties(
-                                delivery_mode = MODE_PERSISTENT_MSGS
-                              ))
+        connection, channel = self.getConnection()
+        jsonmsg = json.dumps(message)
+        channel.basic_publish(
+            exchange='',
+            routing_key=self.connection_info["queue"],
+            body=jsonmsg,
+            properties=pika.BasicProperties(delivery_mode = MODE_PERSISTENT_MSGS))
         print(" [x] Sent '%s'" % message)
+        connection.close()
 
+subprocess.call("../../scripts/./swiftclient-credentials.sh", shell=True)
 app = Flask(__name__)
-
-def rabbitmq():
-    if not hasattr(g, 'rabbitmq') or g.rabbitmq is None:
-        g.rabbitmq = rabbitmq_connect()
-    return g.rabbitmq
-
-def rabbitmq_connect(filename="../../etc/credentials/mq-credentials.txt"):
-    config = ConfigParser.RawConfigParser()
-    config.read(filename)
-    connection = {}
-    connection["server"] = config.get('rabbit', 'server')
-    connection["port"] = int(config.get('rabbit', 'port'))
-    connection["queue"] = config.get('rabbit', 'queue')
-    connection["username"] = config.get('rabbit', 'username')
-    connection["password"] = config.get('rabbit', 'password')
-    print("Connection instantiated using '%s'" % filename)
-    return Connection(connection_info=connection)
 
 def valid_keys():
     return ["1.avi","2.avi","3.avi","4.avi","5.avi","6.avi","7.avi" ]
@@ -106,51 +51,51 @@ def index():
 
 @app.route("/v1/waspmq", methods=["GET"])
 def waspmq():
-    return jsonify("WASPMQ Microservices")
+    return "WASPMQ Microservices\n"
 
-@app.route("/v1/waspmq/convert/<video_id>", methods=["GET"])
-def videosend(video_id):
-    if not video_id in valid_keys():
-      r = jsonify("invalid video id: '{}'.".format(video_id))
-      r.status_code = 400
-      return r
+@app.route("/convert/<VideoName>", methods=["GET"])
+def conversionRequest(VideoName):
+    if not VideoName in valid_keys():
+        message = {
+            'status': 400,
+            'message': 'Invalid video name: ' + VideoName,
+        }
+        resp = jsonify(message)
+        resp.status_code = 400
+        return resp
     else:
-      resp = None
-      statsd = StatsClient('127.0.0.1', 8125)
-      with statsd.timer('webapi_convert.{}'.format(video_id)):
-        resp = rabbitmq().send_to_queue("videoconvert::{}".format(video_id))
-      return jsonify("video '{}' converted: '{}'".format(video_id, resp))
+        convertedVideoName = str(uuid.uuid4())+'-'+VideoName
+        msg = {}
+        msg["type"] = "conversionRequest"
+        msg["VideoName"] = VideoName
+        msg["convertedVideoName"] = convertedVideoName
+        messenger.conversionRequest(msg)
+        message = {
+                'status': 202,
+                'message': '/conversiondone/' + convertedVideoName,
+        }
+        resp = jsonify(message)
+        resp.status_code = 202
+        return resp
 
-@app.route("/v1/waspmq/msg/<message>")
-def send(message):
-    rabbitmq().send_to_queue(message.replace("+", " "))
-    return jsonify("Sent '%s'\n" % message.replace("+", " "))
+@app.route("/conversiondone/<VideoName>", methods=["GET"])
+def checkConversionDone(VideoName):
+    if not StorageOperations.file_exists("ConvertedVideos/"+VideoName,CONTAINERNAME):
+        message = {
+            'status': 404,
+            'message': 'Not found',
+        }
+        resp = jsonify(message)
+        resp.status_code = 404
+    else:
+        message = {
+            'status': 200,
+            'message': 'conversion done',
+        }
+        resp = jsonify(message)
+        resp.status_code = 200
+    return resp
 
-@app.route("/convert/<videoId>", methods=["GET"])
-def conversionRequest(videoId):
-    if Flask.request.method == 'GET':
-        if not videoId in valid_keys():
-            r = jsonify("invalid video id: '{}'.".format(videoId))
-            r.status_code = 400
-            return r
-        else:
-            # uniqueFilename = getUniqueFilename()
-            convertedUrl = str(uuid.uuid4())+'.'+videoId
-            # conversionRequest(videoId, uniqueFilename)
-            message = {}
-            message["type"] = "conversionRequest"
-            message["videoId"] = videoId
-            message["convertedUrl"] = convertedUrl
-            rabbitmq().conversionRequest(message)
-            # return url for converted file
-            r = jsonify("url for converted video: '{}'.".format(convertedUrl))
-            r.status_code = 202
-            return r
-
-@app.route("/convert/<videoId>", methods=["GET"])
-def isConversionDone(videoId):
-    # don't know what to do here
-    pass
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -158,10 +103,21 @@ if __name__ == "__main__":
                       default="../../etc/credentials/mq-credentials.txt",
                       help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
     (options, args) = parser.parse_args()
-
     if options.credentialFile:
-        # start application
+        config = ConfigParser.RawConfigParser()
+        config.read(options.credentialFile)
+        connection = {}
+        connection["server"] = config.get('rabbit', 'server')
+        connection["port"] = int(config.get('rabbit', 'port'))
+        connection["queue"] = config.get('rabbit', 'queue')
+        connection["username"]=config.get('rabbit', 'username')
+        connection["password"]=config.get('rabbit', 'password')
+
+        messenger = Connection(connection_info=connection)
+
+        #start application
         app.run(host="0.0.0.0", port=8000)
+
     else:
-        # e.g. python webapi.py -c credentials.txt
-        print("Syntax: 'python webapi.py -h' | '--help' for help")
+        #e.g. python frontend.py -c credentials.txt
+        print("Syntax: 'python frontend.py -h' | '--help' for help")

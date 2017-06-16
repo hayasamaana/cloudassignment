@@ -1,5 +1,5 @@
 #!/bin/sh
-python vmanager.py -c ../src/service/waspmq.sh -a create waspmq
+python vmanager.py -c waspmq.sh -a create waspmq
 
 while [ 1 ]
 do
