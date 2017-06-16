@@ -8,10 +8,10 @@ import time
 import subprocess
 
 CONTAINERNAME = "VideoStorage"
-
+DOWNLOAD_FOLDER = '/home/ubuntu/'
 
 def getVideo(fileName):
-    StorageOperations.download_file("Videos/"+fileName,CONTAINERNAME)
+    StorageOperations.download_file("Videos/"+fileName,CONTAINERNAME,DOWNLOAD_FOLDER)
 
 def uploadVideo(uploadFile,fileName):
     StorageOperations.upload_file(uploadFile,"ConvertedVideos/"+fileName,CONTAINERNAME)

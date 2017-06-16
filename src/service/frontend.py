@@ -13,7 +13,6 @@ CONTAINERNAME = "VideoStorage"
 class Connection:
     def __init__(self, connection_info=None):
         self.connection_info = connection_info
-        print(self.connection_info)
         self.credentials = pika.PlainCredentials(
             self.connection_info["username"],
             self.connection_info["password"])

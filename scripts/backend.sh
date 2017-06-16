@@ -33,7 +33,7 @@ sudo apt-get install -y python-keystoneclient
 #cd /usr/local/
 
 # clone repo
-cd /home/
+cd /home/ubuntu
 git clone https://github.com/perbostrm/cloudassignment.git
 
 # launch app
