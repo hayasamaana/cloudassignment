@@ -5,20 +5,20 @@ import ConfigParser
 import json
 import StorageOperations
 import time
-import subprocess
+#import subprocess
 
 CONTAINERNAME = "VideoStorage"
-DOWNLOAD_FOLDER = '/home/ubuntu/'
+DOWNLOADFOLDER = '/home/ubuntu/'
 
 def getVideo(fileName):
-    StorageOperations.download_file("Videos/"+fileName,CONTAINERNAME,DOWNLOAD_FOLDER)
+    StorageOperations.download_file("Videos/"+fileName,CONTAINERNAME,DOWNLOADFOLDER)
 
 def uploadVideo(uploadFile,fileName):
-    StorageOperations.upload_file(uploadFile,"ConvertedVideos/"+fileName,CONTAINERNAME)
+    StorageOperations.upload_file(DOWNLOADFOLDER+uploadFile,"ConvertedVideos/"+fileName,CONTAINERNAME)
     return StorageOperations.file_exists("ConvertedVideos/"+fileName,CONTAINERNAME)
 
 def convertVideo(VideoName):
-    time.sleep(3)
+    time.sleep(10)
     success = True
     return success, VideoName
     # success = True
@@ -71,7 +71,7 @@ if __name__=="__main__":
     parser.add_option('-c', '--credential', dest='credentialFile',default="../../etc/credentials/mq-credentials.txt", help='Path to CREDENTIAL file', metavar='CREDENTIALFILE')
     (options, args) = parser.parse_args()
 
-    subprocess.call("../../scripts/./swiftclient-credentials.sh", shell=True)
+    #subprocess.call("../../scripts/./swiftclient-credentials.sh", shell=True)
 
     if options.credentialFile:
         config = ConfigParser.RawConfigParser()

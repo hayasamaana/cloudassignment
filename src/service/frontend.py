@@ -5,7 +5,7 @@ from optparse import OptionParser
 import uuid
 import json
 import StorageOperations
-import subprocess
+#import subprocess
 
 MODE_PERSISTENT_MSGS = 2
 CONTAINERNAME = "VideoStorage"
@@ -38,7 +38,7 @@ class Connection:
         print(" [x] Sent '%s'" % message)
         connection.close()
 
-subprocess.call("../../scripts/./swiftclient-credentials.sh", shell=True)
+# subprocess.call("../../scripts/./swiftclient-credentials.sh", shell=True)
 app = Flask(__name__)
 
 def valid_keys():
