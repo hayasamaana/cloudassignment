@@ -82,6 +82,12 @@ if __name__=="__main__":
         connection["queue"] = config.get('rabbit', 'queue')
         connection["username"] = config.get('rabbit', 'username')
         connection["password"] = config.get('rabbit', 'password')
-        receive(connection_info=connection)
+        success = False
+        while not success :
+            try:
+                 receive(connection_info=connection)
+                 success = True
+             except:
+                 print("Trying to connect again...")
     else:
         print("Syntax: 'python backend.py -h' | '--help' for help")
