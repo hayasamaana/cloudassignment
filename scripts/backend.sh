@@ -25,7 +25,7 @@ sudo apt-get update
 sudo apt-get install -y ffmpeg
 sudo apt-get install -y frei0r-plugins
 sudo pip install ffmpypip install ffmpy
-sudo apt-get install -yimagemagick
+sudo apt-get install -y imagemagick
 
 #Environment variables for swiftclient
 export ST_AUTH_VERSION=3
