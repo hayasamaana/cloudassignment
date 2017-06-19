@@ -9,9 +9,9 @@ class ClientThread(threading.Thread):
     def __init__(self, threadNumber):
         threading.Thread.__init__(self)
         self.setName('Thread ' + str(threadNumber))
-        self.meanTimeBetweenRequests = 4
+        self.meanTimeBetweenRequests = 10
         self.numberOfVideos = 5
-        self.request_url = 'http://172.16.0.8:8000/v1/waspmq/convert/'
+        self.request_url = 'http://172.16.0.15:8000/v1/waspmq/convert/'
 
     def selectVideo(self):
         return randint(1,self.numberOfVideos)
@@ -44,7 +44,7 @@ class ClientThread(threading.Thread):
 
 
 if __name__ == '__main__':
-    numberOfThreads = 100
+    numberOfThreads = 10
 
     # Declare client threads
     threads = [ClientThread(i) for i in range(numberOfThreads)]

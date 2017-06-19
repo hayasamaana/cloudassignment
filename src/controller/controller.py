@@ -3,13 +3,15 @@ import ConfigParser
 from optparse import OptionParser
 import pika
 import time
+import math
 import subprocess
 
 LOWEST_NR_OF_WORKERS = 2
+HIGHEST_NR_OF_WORKERS = 10
 WORKER_THRESHOLD = 2
 INCREASE_SCRIPT = "../../scripts/./deploy-backend.sh "
 DECREASE_SCRIPT = "../../scripts/./delete-backend.sh "
-Tconv = 5
+Tconv = 10
 Tmax = 20
 
 def queue_length(connection_info=None):
@@ -28,7 +30,7 @@ def run(connection_info=None):
     while True :
         time.sleep(1)
         currQueue = queue_length(connection_info)
-        workerRef = max((currQueue*Tconv)/Tmax,LOWEST_NR_OF_WORKERS)
+        workerRef = min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS))
         controlError = workerRef - nrWorkers
         if (controlError) >= WORKER_THRESHOLD:
             print("increasing number of workers")
