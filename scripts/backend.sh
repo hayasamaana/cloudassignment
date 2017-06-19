@@ -19,6 +19,14 @@ export LC_ALL=C
 sudo apt-get install -y python-swiftclient
 sudo apt-get install -y python-keystoneclient
 
+# video conversions
+sudo add-apt-repository -y ppa:mc3man/trusty-media
+sudo apt-get update
+sudo apt-get install -y ffmpeg
+sudo apt-get install -y frei0r-plugins
+sudo pip install ffmpypip install ffmpy
+sudo apt-get install -yimagemagick
+
 #Environment variables for swiftclient
 export ST_AUTH_VERSION=3
 export OS_USERNAME=ercx026

@@ -6,6 +6,7 @@ import json
 import StorageOperations
 import time
 import os
+import ffmpy
 #import subprocess
 
 CONTAINERNAME = "VideoStorage"
@@ -18,13 +19,16 @@ def uploadVideo(uploadFile,fileName):
     StorageOperations.upload_file(DOWNLOADFOLDER+uploadFile,"ConvertedVideos/"+fileName,CONTAINERNAME)
     return StorageOperations.file_exists("ConvertedVideos/"+fileName,CONTAINERNAME)
 
-def convertVideo(VideoName):
-    time.sleep(10)
+def convertVideo(videoName):
+    convertedVideoName = videoName.split('.')[0]+'.mp4'
+    ff = ffmpy.FFmpeg(
+         inputs={videoName: None},
+         outputs={convertedVideoName: None}
+         )
+    ff.run()
     success = True
-    return success, VideoName
-    # success = True
-    # convertedVideo = ???
-    # return success, convertedVideo
+    return success, convertedVideoName
+
 
 def callback(ch, method, properties, body):
     msg = json.loads(body)
@@ -35,11 +39,13 @@ def callback(ch, method, properties, body):
         ch.basic_ack(delivery_tag = method.delivery_tag)
         return
 
+    videoName = msg["VideoName"]
+
     # download video file
-    getVideo(msg["VideoName"])
+    getVideo(videoName)
 
     # convert video
-    success, convertedVideoName = convertVideo(msg["VideoName"])
+    success, convertedVideoName = convertVideo(videoName)
     if not success:
         print(" [x] Conversion failed")
         ch.basic_ack(delivery_tag = method.delivery_tag)
@@ -53,7 +59,7 @@ def callback(ch, method, properties, body):
         return
 
     print(" [x] Conversion request handled")
-    os.remove("Videos/"+VideoName)
+    os.remove("Videos/"+videoName)
     os.remove("Videos/"+convertedVideoName)
     ch.basic_ack(delivery_tag = method.delivery_tag)
 

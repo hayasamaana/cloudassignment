@@ -63,7 +63,7 @@ def conversionRequest(VideoName):
         resp.status_code = 400
         return resp
     else:
-        convertedVideoName = str(uuid.uuid4())+'-'+VideoName
+        convertedVideoName = str(uuid.uuid4())+'-'+VideoName.split('.')[0]+'.mp4'
         msg = {}
         msg["type"] = "conversionRequest"
         msg["VideoName"] = VideoName
