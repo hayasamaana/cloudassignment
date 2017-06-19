@@ -24,7 +24,7 @@ sudo add-apt-repository -y ppa:mc3man/trusty-media
 sudo apt-get update
 sudo apt-get install -y ffmpeg
 sudo apt-get install -y frei0r-plugins
-sudo pip install ffmpypip install ffmpy
+sudo pip install ffmpy
 sudo apt-get install -y imagemagick
 
 #Environment variables for swiftclient
