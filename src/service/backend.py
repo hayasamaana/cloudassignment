@@ -5,6 +5,7 @@ import ConfigParser
 import json
 import StorageOperations
 import time
+import os
 #import subprocess
 
 CONTAINERNAME = "VideoStorage"
@@ -52,6 +53,8 @@ def callback(ch, method, properties, body):
         return
 
     print(" [x] Conversion request handled")
+    os.remove("Videos/"+convertedVideoName"Videos/"+VideoName)
+    os.remove("Videos/"+convertedVideoName"Videos/"+convertedVideoName)
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 def receive(connection_info=None):
