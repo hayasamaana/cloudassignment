@@ -19,16 +19,17 @@ def uploadVideo(uploadFile,fileName):
     StorageOperations.upload_file(DOWNLOADFOLDER+uploadFile,"ConvertedVideos/"+fileName,CONTAINERNAME)
     return StorageOperations.file_exists("ConvertedVideos/"+fileName,CONTAINERNAME)
 
-def convertVideo(videoName):
-    convertedVideoName = videoName.split('.')[0]+'.mp4'
-    ff = ffmpy.FFmpeg(
-         inputs={DOWNLOADFOLDER+"Videos/"+videoName: None},
-         outputs={DOWNLOADFOLDER+"Videos/"+convertedVideoName: None}
-         )
-    ff.run()
-    success = True
-    return success, convertedVideoName
-
+def convertVideo(videoName,convertedVideoName):
+    try:
+        ff = ffmpy.FFmpeg(
+            inputs={DOWNLOADFOLDER+"Videos/"+videoName: None},
+            outputs={DOWNLOADFOLDER+"Videos/"+convertedVideoName: None}
+            )
+        ff.run()
+        success = True
+    except:
+        success = False
+    return success
 
 def callback(ch, method, properties, body):
     msg = json.loads(body)
@@ -40,12 +41,13 @@ def callback(ch, method, properties, body):
         return
 
     videoName = msg["VideoName"]
+    convertedVideoName = msg["convertedVideoName"]
 
     # download video file
     getVideo(videoName)
 
     # convert video
-    success, convertedVideoName = convertVideo(videoName)
+    success = convertVideo(videoName)
     if not success:
         print(" [x] Conversion failed")
         ch.basic_ack(delivery_tag = method.delivery_tag)
