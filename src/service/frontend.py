@@ -87,7 +87,7 @@ def checkConversionDone(VideoName):
         resp = jsonify(message)
         resp.status_code = 404
     else:
-        StorageOperations.delete_file("ConvertedVideos/"+VideoName,CONTAINERNAME)
+        #StorageOperations.delete_file("ConvertedVideos/"+VideoName,CONTAINERNAME)
         message = {
             'status': 200,
             'message': 'conversion done',
