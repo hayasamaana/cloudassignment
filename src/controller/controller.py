@@ -26,6 +26,7 @@ def queue_length(connection_info=None):
     return queueLen
 
 def run(connection_info=None):
+    timeOfLatestIncrease = 0.0
     nrWorkers = LOWEST_NR_OF_WORKERS
     trend = "default"
     while True :
@@ -39,18 +40,21 @@ def run(connection_info=None):
             for i in range(1, controlError+1):
                 print("deploying %s \n" %str(nrWorkers+i) )
                 #Call the bash script for creating workers
+                timeOfLatestIncrease = time.time()
                 subprocess.call(INCREASE_SCRIPT+str(nrWorkers+i), shell=True)
+
             nrWorkers += controlError
             trend = "increasing"
 
         if (controlError < 0 and trend != "increasing") or (-controlError >= WORKER_THRESHOLD):
-            print("decreasing the number of workers")
-            for i in range(0, -controlError):
-                print("killingInTheNameOf")
-                #Call the bash script for deleting workers
-                subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
-            nrWorkers += controlError
-            trend = "decreasing"
+            if time.time()-timeOfLatestIncrease > 60*10.
+                print("decreasing the number of workers")
+                for i in range(0, -controlError):
+                    print("killingInTheNameOf")
+                    #Call the bash script for deleting workers
+                    subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
+                nrWorkers += controlError
+                trend = "decreasing"
         print("Number of workers: %i \n " %nrWorkers)
 
 
