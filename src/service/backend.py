@@ -87,7 +87,7 @@ if __name__=="__main__":
             try:
                  receive(connection_info=connection)
                  success = True
-             except:
+            except:
                  print("Trying to connect again...")
     else:
         print("Syntax: 'python backend.py -h' | '--help' for help")
