@@ -22,8 +22,8 @@ def uploadVideo(uploadFile,fileName):
 def convertVideo(videoName):
     convertedVideoName = videoName.split('.')[0]+'.mp4'
     ff = ffmpy.FFmpeg(
-         inputs={"Videos/"+videoName: None},
-         outputs={"Videos/"+convertedVideoName: None}
+         inputs={DOWNLOADFOLDER+"Videos/"+videoName: None},
+         outputs={DOWNLOADFOLDER+"Videos/"+convertedVideoName: None}
          )
     ff.run()
     success = True
@@ -59,8 +59,8 @@ def callback(ch, method, properties, body):
         return
 
     print(" [x] Conversion request handled")
-    os.remove("Videos/"+videoName)
-    os.remove("Videos/"+convertedVideoName)
+    os.remove(DOWNLOADFOLDER+"Videos/"+videoName)
+    os.remove(DOWNLOADFOLDER+"Videos/"+convertedVideoName)
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 def receive(connection_info=None):
