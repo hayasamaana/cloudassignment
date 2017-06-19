@@ -47,7 +47,7 @@ def callback(ch, method, properties, body):
     getVideo(videoName)
 
     # convert video
-    success = convertVideo(videoName)
+    success = convertVideo(videoName, convertedVideoName)
     if not success:
         print(" [x] Conversion failed")
         ch.basic_ack(delivery_tag = method.delivery_tag)
@@ -60,9 +60,10 @@ def callback(ch, method, properties, body):
         ch.basic_ack(delivery_tag = method.delivery_tag)
         return
 
-    print(" [x] Conversion request handled")
     os.remove(DOWNLOADFOLDER+"Videos/"+videoName)
     os.remove(DOWNLOADFOLDER+"Videos/"+convertedVideoName)
+    print(" [x] Conversion request handled")
+
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 def receive(connection_info=None):
