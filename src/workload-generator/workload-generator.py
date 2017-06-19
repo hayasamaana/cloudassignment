@@ -40,7 +40,7 @@ class ClientThread(threading.Thread):
 
     def run(self):
         time.sleep(.01) # todo, remove?
-        numberOfRequests = 2
+        numberOfRequests = 10
         for i in range(0,numberOfRequests):
             # Sleep for random time
             secondsToSleep = randint(1,2*self.meanTimeBetweenRequests)

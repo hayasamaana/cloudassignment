@@ -11,8 +11,8 @@ HIGHEST_NR_OF_WORKERS = 10
 WORKER_THRESHOLD = 2
 INCREASE_SCRIPT = "../../scripts/./deploy-backend.sh "
 DECREASE_SCRIPT = "../../scripts/./delete-backend.sh "
-Tconv = 10
-Tmax = 20
+Tconv = 10.
+Tmax = 100.
 
 def queue_length(connection_info=None):
     credentials = pika.PlainCredentials(
@@ -27,26 +27,32 @@ def queue_length(connection_info=None):
 
 def run(connection_info=None):
     nrWorkers = LOWEST_NR_OF_WORKERS
+    trend = "default"
     while True :
         time.sleep(10)
         currQueue = queue_length(connection_info)
         workerRef = int(min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS)))
+        print("Worker ref: %i \n" %workerRef)
         controlError = workerRef - nrWorkers
-        if (controlError) >= WORKER_THRESHOLD:
+        if (controlError > 0 and trend != "decreasing") or (controlError >= WORKER_THRESHOLD):
             print("increasing number of workers")
             for i in range(1, controlError+1):
-                print("deploying")
+                print("deploying %s \n" %str(nrWorkers+i) )
                 #Call the bash script for creating workers
-                #subprocess.call(INCREASE_SCRIPT+str(nrWorkers+i), shell=True)
+                subprocess.call(INCREASE_SCRIPT+str(nrWorkers+i), shell=True)
             nrWorkers += controlError
+            trend = "increasing"
 
-        if (-controlError >= WORKER_THRESHOLD):
+        if (controlError < 0 and trend != "increasing") or (-controlError >= WORKER_THRESHOLD):
             print("decreasing the number of workers")
-            for i in range(1, -controlError+1):
+            for i in range(0, -controlError):
                 print("killingInTheNameOf")
                 #Call the bash script for deleting workers
-                #subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
+                subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
             nrWorkers += controlError
+            trend = "decreasing"
+        print("Number of workers: %i \n " %nrWorkers)
+
 
 
 if __name__ == "__main__":
