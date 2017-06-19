@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 _opts = {'object_uu_threads': 20}
 def upload_file(file,filename,container):
-    print(file)
     with SwiftService(options=_opts) as swift, OutputManager() as out_manager:
         try:
             objs = []
@@ -28,7 +27,6 @@ def upload_file(file,filename,container):
                else:
                   error = r['error']
                   logger.error( "Failed to upload object to container")
-               print r
 
         except SwiftError as e:
             logger.error(e.value)
