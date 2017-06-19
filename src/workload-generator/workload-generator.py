@@ -3,6 +3,7 @@
 import threading
 from random import randint
 import time
+import json
 import requests
 
 class ClientThread(threading.Thread):
@@ -11,7 +12,8 @@ class ClientThread(threading.Thread):
         self.setName('Thread ' + str(threadNumber))
         self.meanTimeBetweenRequests = 10
         self.numberOfVideos = 5
-        self.request_url = 'http://172.16.0.15:8000/v1/waspmq/convert/'
+        self.request_url = 'http://172.16.0.15:8000/convert/'
+        self.frontend_url = 'http://172.16.0.15:8000'
 
     def selectVideo(self):
         return randint(1,self.numberOfVideos)
@@ -23,8 +25,15 @@ class ClientThread(threading.Thread):
         time.sleep(.01) # todo: remove
         print(self.request_url + str(videoNumber) + '.avi')
         r = requests.get(self.request_url + str(videoNumber) + '.avi')
-        print(r.status_code)
+        resp_json = r.json()
+	resp_dict = json.loads(json.dumps(resp_json))
         # todo: send HTTP GET to Frontend Web API
+        if r.status_code == 202:
+            success = False
+            convUrl = resp_dict["message"]
+            while not success:
+                r2 = requests.get(self.frontend_url + convUrl)
+                success = r2.status_code == 200 
 
         timeEnd = time.time()
         print('%s: conversion done in %g seconds' % (self.getName(), timeEnd-timeStart))

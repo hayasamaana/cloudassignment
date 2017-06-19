@@ -61,7 +61,7 @@ def receive(connection_info=None):
     channel = connection.channel()
     channel.queue_declare(queue=qname)
     channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(callback, queue=qname, no_ack=True)
+    channel.basic_consume(callback, queue=qname)
     print(' [*] Waiting for messages. To exit press CTRL+C')
     channel.start_consuming()
 

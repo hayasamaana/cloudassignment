@@ -28,9 +28,9 @@ def queue_length(connection_info=None):
 def run(connection_info=None):
     nrWorkers = LOWEST_NR_OF_WORKERS
     while True :
-        time.sleep(1)
+        time.sleep(10)
         currQueue = queue_length(connection_info)
-        workerRef = min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS))
+        workerRef = int(min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS)))
         controlError = workerRef - nrWorkers
         if (controlError) >= WORKER_THRESHOLD:
             print("increasing number of workers")
