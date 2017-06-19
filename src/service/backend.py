@@ -22,8 +22,8 @@ def uploadVideo(uploadFile,fileName):
 def convertVideo(videoName):
     convertedVideoName = videoName.split('.')[0]+'.mp4'
     ff = ffmpy.FFmpeg(
-         inputs={videoName: None},
-         outputs={convertedVideoName: None}
+         inputs={"Videos/"+videoName: None},
+         outputs={"Videos/"+convertedVideoName: None}
          )
     ff.run()
     success = True
