@@ -51,7 +51,7 @@ The task was very time consuming since non of the group members had previous exp
 \begin{figure}
 	\label{fig:architecture}
 	\centering
-	\includegraphics[width=1\textwidth]{figs/workflow.pdf}
+	\includegraphics[width=1\textwidth]{figs/workflow-final.pdf}
 	\caption{Overview of the system architecture.}
 \end{figure}
 An overview of the system architecture can be found in Figure~\ref{fig:architecture}. The different components involved are:
@@ -125,14 +125,39 @@ This is of course a simple approach which, if needed, could be extended to also 
 \end{equation*} 
 where $n_{\text{lowest}} = 2$ is the lowest amount of  active video conversion nodes, and $n_{\text{highest}} = 10$ is the highest amount of active video conversion nodes. 
 
-To reduce the effect of quick, temporary  changes in the queue, we have used a low-passed filtered reference signal. We have also implemented a minimum time to live for the video conversion nodes, since the time from creation to actual work is long (currently couple of minutes, see FIGURE REF).
+To reduce the effect of quick, temporary  changes in the queue, we have used a low-passed filtered reference signal. We have also implemented a minimum time to live for the video conversion nodes, since the time from creation to actual work is long (currently couple of minutes, see Figure~\ref{fig:numberOfVMs}).
 
 \section{Health-Checking} \label{sec:HC}
 The Health-Checking node is used to make sure that the available Backend and Frontend nodes works. This is done by checking the Status flag in OpenStack. If a node has status Error, this node is deleted and then re-created again. This is done by using python Novaclient.
 
 
 \section{Experimental Results}
-Since we did not have time to implement the robustness for the system, the experimental evaluations were focused on scaling the service up and down depending on the workload. 
+Since we did not have time to implement the robustness for the system, the experimental evaluations were focused on scaling the service up and down depending on the workload. Figures \ref{fig:conversionsPending}--\ref{fig:conversionTime} show data from a scale up and scale down scenario. 
+
+The sharp increase in workload at $ t=20 $ minutes leads to a substantial increase in the time it takes to handle conversion requests. To handle this, the controller increases the reference and more VMs are created. However, due to long boot times, it takes some time before the new VMs can start working. Also, we noticed that during the startup of new VMs, the ones that were already up and running seemed to slow down. The scaling down is handled in a similar manner; as the workload decreases, fewer VMs are needed and hence some of them are shut down. Also here there is some delay.
+
+\setlength\figureheight{0.3\columnwidth}
+\setlength\figurewidth{0.8\columnwidth}
+\begin{figure}
+	\centering
+	\input{figs/conversionsPending.tex}
+	\caption{Number of pending conversions as a function of time. At $ t=20 $ minutes, a sharp increase in the workload occurs and at $ t=40 $ minutes the workload drops to a lower level.}
+	\label{fig:conversionsPending}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\input{figs/numberOfVMs.tex}
+	\caption{Number of virtual machines in the backend as a function of time. The red line is the reference signal from the controller, while the blue one represents the actual number of VMs connected to the message queue. }
+	\label{fig:numberOfVMs}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\input{figs/conversionTime.tex}
+	\caption{The time it takes to process a conversion request as a function of time.}
+	\label{fig:conversionTime}
+\end{figure}
 
 
 \end{document}
