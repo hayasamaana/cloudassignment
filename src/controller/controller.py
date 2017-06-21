@@ -28,13 +28,15 @@ def queue_stats(connection_info=None):
     return queueLen, actualNumberOfWorkers
 
 def run(connection_info=None):
+    workerRef = 2
     timeOfLatestIncrease = 0.0
     nrWorkers = LOWEST_NR_OF_WORKERS
     trend = "default"
     while True :
-        time.sleep(1)
+        time.sleep(5)
         currQueue, actualNWorkers = queue_stats(connection_info)
-        workerRef = int(min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS)))
+        currWorkerRef = int(min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS)))
+        workerRef = int(math.ceil(.9*workerRef + .1*currWorkerRef))
         #print("Worker ref: %i \n" %workerRef)
         controlError = workerRef - nrWorkers
         if (controlError > 0 and trend != "decreasing") or (controlError >= WORKER_THRESHOLD):
