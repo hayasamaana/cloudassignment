@@ -14,7 +14,7 @@ DECREASE_SCRIPT = "../../scripts/./delete-backend.sh "
 Tconv = 4.
 Tmax = 12.
 
-def queue_length(connection_info=None):
+def queue_stats(connection_info=None):
     credentials = pika.PlainCredentials(
         connection_info["username"], connection_info["password"])
     connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -22,23 +22,25 @@ def queue_length(connection_info=None):
     channel = connection.channel()
     queueLen = channel.queue_declare(queue="wasp", durable=False,  exclusive=False,
                       auto_delete=False,passive=True).method.message_count
-    #print(queueLen)
-    return queueLen
+
+    actualNumberOfWorkers = channel.queue_declare(queue="wasp", durable=False,  exclusive=False,
+                      auto_delete=False,passive=True).method.consumer_count
+    return queueLen, actualNumberOfWorkers
 
 def run(connection_info=None):
     timeOfLatestIncrease = 0.0
     nrWorkers = LOWEST_NR_OF_WORKERS
     trend = "default"
     while True :
-        time.sleep(10)
-        currQueue = queue_length(connection_info)
+        time.sleep(1)
+        currQueue, actualNWorkers = queue_stats(connection_info)
         workerRef = int(min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS)))
         #print("Worker ref: %i \n" %workerRef)
         controlError = workerRef - nrWorkers
         if (controlError > 0 and trend != "decreasing") or (controlError >= WORKER_THRESHOLD):
-            print("increasing number of workers")
+#            print("increasing number of workers")
             for i in range(1, controlError+1):
-                print("deploying %s \n" %str(nrWorkers+i) )
+ #               print("deploying %s \n" %str(nrWorkers+i) )
                 #Call the bash script for creating workers
                 timeOfLatestIncrease = time.time()
                 subprocess.call(INCREASE_SCRIPT+str(nrWorkers+i), shell=True)
@@ -48,18 +50,18 @@ def run(connection_info=None):
 
         if (controlError < 0 and trend != "increasing") or (-controlError >= WORKER_THRESHOLD):
             if time.time()-timeOfLatestIncrease > 60*10.:
-                print("decreasing the number of workers")
+  #              print("decreasing the number of workers")
                 for i in range(0, -controlError):
-                    print("killingInTheNameOf")
+   #                 print("killingInTheNameOf")
                     #Call the bash script for deleting workers
                     subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
                 nrWorkers += controlError
                 trend = "decreasing"
         #print("Number of workers: %i \n " %nrWorkers)
-        stats(currQueue, workerRef, nrWorkers)
+        stats(currQueue, workerRef, nrWorkers, actualNWorkers)
 
-def stats(queueLength,nRef,nBackends):
-    print('{}, {}, {}, {}; ...'.format(time.time(),queueLength,nRef,nBackends))
+def stats(queueLength,nRef,nBackends,actualnBackends):
+    print('{}, {}, {}, {}, {}; ...'.format(time.time(),queueLength,nRef,nBackends,actualnBackends))
 
 if __name__ == "__main__":
     parser = OptionParser()
