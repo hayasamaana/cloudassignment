@@ -137,9 +137,9 @@ The Health-Checking node is used to make sure that the available Backend and Fro
 \section{Experimental Results}
 Since we did not have time to implement the robustness for the system, the experimental evaluations were focused on scaling the service up and down depending on the workload. During the experiments, the workload generator was for convenience executed within the cloud. 
 
-Figures \ref{fig:conversionsPending}--\ref{fig:conversionTime} show data from a scale up and scale down scenario. The sharp increase in workload at $ t=20 $ minutes leads to a substantial increase in the time it takes to handle conversion requests. To handle this, the controller increases the reference and more VMs are created. However, due to long boot times, it takes some time before the new VMs can start working. Also, we noticed that during the startup of new VMs, the ones that were already up and running seemed to slow down. The scaling down is handled in a similar manner; as the workload decreases, fewer VMs are needed and hence some of them are shut down. Also here there is some delay.
+Figures \ref{fig:conversionsPending}--\ref{fig:conversionTime} show data from a scale up and scale down scenario. The sharp increase in workload at $ t=20 $ minutes leads to a substantial increase in the time it takes to handle conversion requests. To handle this, the controller increases the reference and more VMs are created. However, due to long boot times, it takes some time before the new VMs can start working. Also, we noticed that during the startup of new VMs, the ones that were already up and running seemed to slow down. The scaling down is handled in a similar manner; as the workload decreases, fewer VMs are needed and hence some of them are shut down.
 
-\setlength\figureheight{0.3\columnwidth}
+\setlength\figureheight{0.21\columnwidth}
 \setlength\figurewidth{0.8\columnwidth}
 \begin{figure}
 	\centering
