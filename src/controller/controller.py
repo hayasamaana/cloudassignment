@@ -11,8 +11,8 @@ HIGHEST_NR_OF_WORKERS = 10
 WORKER_THRESHOLD = 2
 INCREASE_SCRIPT = "../../scripts/./deploy-backend.sh "
 DECREASE_SCRIPT = "../../scripts/./delete-backend.sh "
-Tconv = 10.
-Tmax = 100.
+Tconv = 4.
+Tmax = 12.
 
 def queue_length(connection_info=None):
     credentials = pika.PlainCredentials(
@@ -22,7 +22,7 @@ def queue_length(connection_info=None):
     channel = connection.channel()
     queueLen = channel.queue_declare(queue="wasp", durable=False,  exclusive=False,
                       auto_delete=False,passive=True).method.message_count
-    print(queueLen)
+    #print(queueLen)
     return queueLen
 
 def run(connection_info=None):
@@ -33,7 +33,7 @@ def run(connection_info=None):
         time.sleep(10)
         currQueue = queue_length(connection_info)
         workerRef = int(min(HIGHEST_NR_OF_WORKERS,max(math.ceil((currQueue*Tconv)/Tmax),LOWEST_NR_OF_WORKERS)))
-        print("Worker ref: %i \n" %workerRef)
+        #print("Worker ref: %i \n" %workerRef)
         controlError = workerRef - nrWorkers
         if (controlError > 0 and trend != "decreasing") or (controlError >= WORKER_THRESHOLD):
             print("increasing number of workers")
@@ -55,9 +55,11 @@ def run(connection_info=None):
                     subprocess.call(DECREASE_SCRIPT+str(nrWorkers-i), shell=True)
                 nrWorkers += controlError
                 trend = "decreasing"
-        print("Number of workers: %i \n " %nrWorkers)
+        #print("Number of workers: %i \n " %nrWorkers)
+        stats(currQueue, workerRef, nrWorkers)
 
-
+def stats(queueLength,nRef,nBackends):
+    print('{}, {}, {}, {}; ...'.format(time.time(),queueLength,nRef,nBackends))
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -75,7 +77,9 @@ if __name__ == "__main__":
         connection["queue"] = config.get('rabbit', 'queue')
         connection["username"] = config.get('rabbit', 'username')
         connection["password"] = config.get('rabbit', 'password')
-        print("test.py starting")
+        print("%controller.py starting")
+        print("%controllerStats = [time, queueLength, nRef, nBackends]")
+        print("controllerStats = [ ...")
         run(connection_info=connection)
     else:
         # e.g. python worker.py -c credentials.txt
