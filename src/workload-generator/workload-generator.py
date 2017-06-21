@@ -5,6 +5,8 @@ from random import randint
 import time
 import json
 import requests
+import math
+import sys
 
 class ClientThread(threading.Thread):
     def __init__(self, threadNumber):
@@ -20,10 +22,10 @@ class ClientThread(threading.Thread):
 
     def requestConversion(self):
         videoNumber = self.selectVideo()
-        print('%s: requesting conversion of video %d' % (self.getName(), videoNumber))
+        #print('%s: requesting conversion of video %d' % (self.getName(), videoNumber))
         timeStart = time.time()
         time.sleep(.01) # todo: remove
-        print(self.request_url + str(videoNumber) + '.avi')
+        #print(self.request_url + str(videoNumber) + '.avi')
         r = requests.get(self.request_url + str(videoNumber) + '.avi')
         resp_json = r.json()
 	resp_dict = json.loads(json.dumps(resp_json))
@@ -33,18 +35,20 @@ class ClientThread(threading.Thread):
             convUrl = resp_dict["message"]
             while not success:
                 r2 = requests.get(self.frontend_url + convUrl)
-                success = r2.status_code == 200 
+                success = r2.status_code == 200
 
         timeEnd = time.time()
-        print('%s: conversion done in %g seconds' % (self.getName(), timeEnd-timeStart))
+        #print('%s: conversion done in %g seconds' % (self.getName(), timeEnd-timeStart))
+        print('{}, {}; ...'.format(time.time(),timeEnd-timeStart))
+
 
     def run(self):
         time.sleep(.01) # todo, remove?
         numberOfRequests = 10
         for i in range(0,numberOfRequests):
             # Sleep for random time
-            secondsToSleep = randint(1,2*self.meanTimeBetweenRequests)
-            print('%s: sleeping for %d s' % (self.getName(), secondsToSleep))
+            secondsToSleep = -math.log(randint(1,2*self.meanTimeBetweenRequests))
+            #print('%s: sleeping for %d s' % (self.getName(), secondsToSleep))
             time.sleep(secondsToSleep)
 
             # Request conversion
@@ -53,14 +57,20 @@ class ClientThread(threading.Thread):
 
 
 if __name__ == '__main__':
-    numberOfThreads = 10
+    numberOfThreads = int(sys.argv[1])
+
+
+    print("%workload-generator.py starting")
+    print('nThreads = {}'.format(numberOfThreads))
+    print("%wlStats = [time.time(), conversionTime]")
+    print("wlStats = [...")
 
     # Declare client threads
     threads = [ClientThread(i) for i in range(numberOfThreads)]
 
     # Start client threads
     for t in range(0,numberOfThreads):
-        print('starting Thread %d' % t)
+        #print('starting Thread %d' % t)
         threads[t].daemon = True;
         threads[t].start()
 
@@ -68,4 +78,4 @@ if __name__ == '__main__':
     while threading.active_count() > 1:
         time.sleep(0.1)
 
-    print('Main terminating...')
+    print("];")
