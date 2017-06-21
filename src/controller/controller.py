@@ -47,7 +47,7 @@ def run(connection_info=None):
             trend = "increasing"
 
         if (controlError < 0 and trend != "increasing") or (-controlError >= WORKER_THRESHOLD):
-            if time.time()-timeOfLatestIncrease > 60*10.
+            if time.time()-timeOfLatestIncrease > 60*10.:
                 print("decreasing the number of workers")
                 for i in range(0, -controlError):
                     print("killingInTheNameOf")
