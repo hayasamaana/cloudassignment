@@ -47,7 +47,7 @@ class ClientThread(threading.Thread):
         numberOfRequests = 10
         for i in range(0,numberOfRequests):
             # Sleep for random time
-            secondsToSleep = -math.log(randint(1,2*self.meanTimeBetweenRequests))
+            secondsToSleep = (randint(1,2*self.meanTimeBetweenRequests))
             #print('%s: sleeping for %d s' % (self.getName(), secondsToSleep))
             time.sleep(secondsToSleep)
 
