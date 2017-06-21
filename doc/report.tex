@@ -36,7 +36,7 @@
 \newlength\figurewidth
 
 
-\title{WASP SECC Course: Cloud Module Assignment\\Architecture}
+\title{WASP SECC Course: Cloud Module Assignment\\Report}
 \author{Kristoffer Bergman, Per Boström, Shervin Parvini Ahmadi}
 \date{May, 2017}
 
@@ -45,57 +45,71 @@
 \maketitle
 
 \section{Overview}
+This report briefly describes the service created in the Cloud module of the WASP course in Software engineering and cloud computing. 
+The task was very time consuming since non of the group members had previous experience from similar work. Nevertheless, a scalable video conversion has been developed and is described in the following.
 
 \begin{figure}
 	\label{fig:architecture}
 	\centering
 	\includegraphics[width=1\textwidth]{figs/workflow.pdf}
-	\caption{Overview of the architecture.}
+	\caption{Overview of the system architecture.}
 \end{figure}
-An overview of the proposed architecture can be found in Figure~\ref{fig:architecture}. The different components involved are:
+An overview of the system architecture can be found in Figure~\ref{fig:architecture}. The different components involved are:
 \begin{itemize}
-	\item \textbf{Workload generator}: Will be used as a test engine to simulate external users. See Section~\ref{sec:WG} for more details.
-	\item \textbf{Load balancer}: Will be used to distribute the workload across the multiple instances of the frontend Web API. It will also be used for the backend Video conversion, but we are currently not completely sure on how to use this component.
-	\item \textbf{Frontend Web API}: Will be used to receive requests from users and deliver a response. We have simplified the architecture so that we only acknowledge the user when the conversion is completed and how it should be related to the controller specified in Section~\ref{sec:Controller}.
-	\item \textbf{Message queue}: Will be used to route the requests to the available Video conversion nodes and maintain the request queue. Will also route the responses after video conversions.
-	\item \textbf{Backend Video conversion}: Will be used to do the actual conversion of videos by reading the video from the storage.
-	\item \textbf{Video Storage}: To simplify the assignment, we will use a storage node that contains all the available videos for conversion. To simplify things further, we are considering not to send the converted video to the user. Instead, when the conversion is complete, the converted video will be deleted (and the user notified that the conversion is completed).
-	\item \textbf{Monitor}: Will be used to monitor entities relevant for the controller, by periodically gather information. It will also save this information in .mat files, which can then be used to plot the data in Matlab.
-	\item \textbf{Controller}: Will be used to make the service scalable. See Section~\ref{sec:Controller} for more details.
-	\item \textbf{Key-value Store and Service}: Will be used to perform health checking for the service as a whole.
+	\item \textbf{Workload generator}: Is used as a test engine to simulate external users. See Section~\ref{sec:WG} for more details.
+	\item \textbf{Load balancer}: Was not implemented due to lack of time.
+	\item \textbf{Frontend Web API}: Is used to receive requests from users and deliver a response. See Section~\ref{sec:FE} for more details.
+	\item \textbf{Message queue}: Is used to route the requests to the available Video conversion nodes and maintain the request queue. 
+	\item \textbf{Backend Video conversion}: Is used to do the actual conversion of videos by reading the video from the storage. See Section~\ref{sec:BE} for more details.
+	\item \textbf{Video Storage}: Is used to store available and converted videos.
+	\item \textbf{Monitor}: Is be used to monitor entities relevant for the controller, by periodically gather information. The information is saved in .mat files, which can be used to plot the data in Matlab.
+	\item \textbf{Controller}: Is used to make the service scalable. See Section~\ref{sec:Controller} for more details.
+	\item \textbf{Health-Checking}: Is used to perform health checking for the backend and frontend nodes.
 \end{itemize}
 
 \section{Software and tech}
-The following is a list of the software and tech that will be used to implement the system components:
+The following is a list of the software and tech that is used in the system components:
 \begin{itemize}
-	\item \textbf{Workload generator}: Python code and REST
-	\item \textbf{Load balancer}: nginx
+	\item \textbf{Workload generator}: Python
 	\item \textbf{Frontend Web API}: Python
 	\item \textbf{Message queue}: RabbitMQ
-	\item \textbf{Backend Video conversion}: Mencoder
-	\item \textbf{Video Storage}: Object storage in OpenStack? 4k Video Samples will be used for gathering videos to be placed in the storage.
+	\item \textbf{Backend Video conversion}: FFmpeg with ffmpy
+	\item \textbf{Video Storage}: Object storage in OpenStack
 	\item \textbf{Monitor}: Python
-	\item \textbf{Controller}: Python and Python novaclient (For interacting with OpenStack to start or kill VMs).
-	\item \textbf{Key-value Store and Service}: etcd
+	\item \textbf{Controller}: Python with python-novaclient (To interact with OpenStack).
+	\item \textbf{Health-Checking}: Python with python-novaclient (To interact with OpenStack)
 \end{itemize}
 
 \section{Redundancy}
-To increase the robustness of the system, we will use redundancy for the following components:
-\begin{itemize}
-	\item Message Queue
-	\item Load Balancer
-	\item Key-value Store and Service
-	\item Monitor
-\end{itemize}
-By redundancy, we mean that we will use one (or more) backup components that contains the same data as the main component. In case of failure, the backup component takes over.
+Due to lack of time, we were unable to implement redundancy in the components with states (such as the Message Queue and the Monitor).
+
 \section{Workload generator} \label{sec:WG}
-The workload generator is the test engine that simulates external users. It takes two parameters: the number of client converters and the average time between conversion requests. It will start the specified number of client threads of which each one represents a user. Each client randomly selects a video, sends a conversion request, waits for the completion, and then sleeps for a while (on average the specified time) before repeating the process.
+The workload generator is the test engine that simulates external users. It takes two parameters: the number of client converters and the average time between conversion requests. It starts the specified number of client threads, where each one represents a user. Each user randomly selects a video, sends a conversion request, waits for the completion, and then sleeps for a while (on average the specified time) before repeating the process.
 
-The workload generator will also measure values such as response time and keep track of how many requests there are in the queue.
+The workload generator also measures the response time and stores it in a .mat-file.
+
+\section{Frontend Web API} \label{sec:FE}
+The Frontend Web API is used to receive requests from users and deliver a response. The conversion request is handled according to the following steps
+\begin{itemize}
+	\item The Frontend Web API receives a video conversion request, and sends this request to the Message Queue.
+	\item Then, it waits for a response from the backend, which contains information of how to find the converted video in the storage.
+	\item Finally, an "Accepted" response is sent to the user, where the information of how to find the converted video in the storage is included. If the backend does not accept the conversion request, an Error message is returned. 
+\end{itemize}
+When a user is requesting the actual converted video, the Frontend Web API checks if the converted video (which has a unique name) is available in the Video Storage using python-swiftclient. If it can be found, it responds with a OK message, otherwise an Error messasge is returned.
+
+
+\section{Backend Video Conversion} \label{sec:BE}
+The Backend Video Conversion node is used to perform the actual conversion of videos. When a conversion request is received from the Message Queue, the following steps are executed
+\begin{itemize}
+	\item First, the node checks if the requested video exists in the folder of available videos. If it does, the node sends an Accepted response back to the queue together with an unique file name, which represent where the converted file will be stored. Otherwise, an Error response is returned and the conversion is aborted. 
+	\item The second step is to download the requested video from Video Storage and perform the actual conversion. For this, we used FFmpeg together with a Python wrapper called ffmpy.
+	\item Finally, the converted file is uploaded to the Video Storage. Once this is done, the converted and downloaded videos are deleted locally.
+\end{itemize}
+
 \section{Controller} \label{sec:Controller}
-In order to make the service scalable, we must be able to scale up or down depending on its load. For this, we need a controller that controls the number of nodes used to convert videos (backend) and also nodes that receives conversion requests (frontend). The scaling will be performed horizontally.
+The controller is used to scale up and down the number of VMs used for backend video conversion, depending on the workload. The controller is running at a frequency of 0.2 Hz
 
-We will use the simplifying assumption that all videos are of approximately the same size. This makes it possible to use the time from that a video conversion request is submitted until the video is converted as the control objective. Assume the average time it takes for one core to convert one video is given (including potential delays in the system), and denote it $ T_{\text{conv}} $. With $ n_{\text{queue}} $ video conversion requests in queue and $ n_{\text{vm}} $ active VMs, the time $ T $ needed to convert all videos in the queue is given by
+We used the simplifying assumption that all videos are of approximately the same size. This makes it possible to use the time from that a video conversion request is submitted until the video is converted as the control objective. Assume the average time it takes for one core to convert one video is given (including potential delays in the system), and denote it $ T_{\text{conv}} $. With $ n_{\text{queue}} $ video conversion requests in queue and $ n_{\text{vm}} $ active VMs, the time $ T $ needed to convert all videos in the queue is given by
 \begin{equation}
 T = \frac{T_{\text{conv}}  n_{\text{queue}}}{n_{\text{vm}}}
 \end{equation}
@@ -104,15 +118,21 @@ Thus, if the control objective is to keep the maximum time from a request is sub
 n_{\text{vm}} > \frac{T_{\text{conv}}  n_{\text{queue}}}{T_{\text{max}}}
 \end{equation}
 
-This is of course a simple approach which, if needed, could be extended to also consider videos of varying sizes and possibly reordering the queue such that for example small sized videos are prioritized over larger ones.
+This is of course a simple approach which, if needed, could be extended to also consider videos of varying sizes and possibly reordering the queue such that for example small sized videos are prioritized over larger ones. By some simple tests, we got that $T_{\text{conv}} \approx 4$ seconds when we only had one request running at the time. We used $T_{\text{max}} = 12$ as the maximum , which gave us
 
-\subsection{Oversubscription}
-Due to oversubscription, the provided cloud environment does not guarantee that adding one VM will lead to an overall increase in performance, nor that all VMs will have the same performance over time. Assuming conversion rate in Mb/s, \emph{i.e.} an entity inverse proportional to the time needed to process a video, depends on the number of active VMs in a way similar to Figure~\ref{fig:vmvsMbs}, it should be possible to optimize the number of VMs, to avoid wasting resources.
-\begin{figure}
-	\label{fig:vmvsMbs}
-	\centering
-	\includegraphics[width=.6\textwidth]{figs/vmvsMbs.pdf}
-	\caption{Assumed behavior of the video conversion rate as a function of active VMs. There is no gain in conversion rate if more VMs are added passed the circle.}
-\end{figure}
+\begin{equation*}
+	r_{\text{vm}} = \text{max}\{n_{\text{lowest}}, \text{min}\{n_{\text{highest}}, \frac{T_{\text{conv}}  n_{\text{queue}}}{T_{\text{max}}}\} \}
+\end{equation*} 
+where $n_{\text{lowest}} = 2$ is the lowest amount of  active video conversion nodes, and $n_{\text{highest}} = 10$ is the highest amount of active video conversion nodes. 
+
+To reduce the effect of quick, temporary  changes in the queue, we have used a low-passed filtered reference signal. We have also implemented a minimum time to live for the video conversion nodes, since the time from creation to actual work is long (currently couple of minutes, see FIGURE REF).
+
+\section{Health-Checking} \label{sec:HC}
+The Health-Checking node is used to make sure that the available Backend and Frontend nodes works. This is done by checking the Status flag in OpenStack. If a node has status Error, this node is deleted and then re-created again. This is done by using python Novaclient.
+
+
+\section{Experimental Results}
+Since we did not have time to implement the robustness for the system, the experimental evaluations were focused on scaling the service up and down depending on the workload. 
+
 
 \end{document}
