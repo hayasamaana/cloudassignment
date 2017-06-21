@@ -38,7 +38,7 @@
 
 \title{WASP SECC Course: Cloud Module Assignment\\Report}
 \author{Kristoffer Bergman, Per Boström, Shervin Parvini Ahmadi}
-\date{May, 2017}
+\date{June, 2017}
 
 
 \begin{document}
@@ -47,6 +47,9 @@
 \section{Overview}
 This report briefly describes the service created in the Cloud module of the WASP course in Software engineering and cloud computing. 
 The task was very time consuming since non of the group members had previous experience from similar work. Nevertheless, a scalable video conversion has been developed and is described in the following.
+
+Git repository for the code is found at: \verb|https://github.com/perbostrm/cloudassignment|.
+
 
 \begin{figure}
 	\label{fig:architecture}
@@ -132,9 +135,9 @@ The Health-Checking node is used to make sure that the available Backend and Fro
 
 
 \section{Experimental Results}
-Since we did not have time to implement the robustness for the system, the experimental evaluations were focused on scaling the service up and down depending on the workload. Figures \ref{fig:conversionsPending}--\ref{fig:conversionTime} show data from a scale up and scale down scenario. 
+Since we did not have time to implement the robustness for the system, the experimental evaluations were focused on scaling the service up and down depending on the workload. During the experiments, the workload generator was for convenience executed within the cloud. 
 
-The sharp increase in workload at $ t=20 $ minutes leads to a substantial increase in the time it takes to handle conversion requests. To handle this, the controller increases the reference and more VMs are created. However, due to long boot times, it takes some time before the new VMs can start working. Also, we noticed that during the startup of new VMs, the ones that were already up and running seemed to slow down. The scaling down is handled in a similar manner; as the workload decreases, fewer VMs are needed and hence some of them are shut down. Also here there is some delay.
+Figures \ref{fig:conversionsPending}--\ref{fig:conversionTime} show data from a scale up and scale down scenario. The sharp increase in workload at $ t=20 $ minutes leads to a substantial increase in the time it takes to handle conversion requests. To handle this, the controller increases the reference and more VMs are created. However, due to long boot times, it takes some time before the new VMs can start working. Also, we noticed that during the startup of new VMs, the ones that were already up and running seemed to slow down. The scaling down is handled in a similar manner; as the workload decreases, fewer VMs are needed and hence some of them are shut down. Also here there is some delay.
 
 \setlength\figureheight{0.3\columnwidth}
 \setlength\figurewidth{0.8\columnwidth}
